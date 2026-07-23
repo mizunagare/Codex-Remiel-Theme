@@ -61,7 +61,7 @@ try {
     foreach ($folder in @($desktop, $startMenu)) {
       $shortcut = $shell.CreateShortcut((Join-Path $folder 'Codex Dream Skin.lnk'))
       $shortcut.TargetPath = $powershell
-      $shortcut.Arguments = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$startScript`"$portArgument -PromptRestart"
+      $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$startScript`"$portArgument -PromptRestart"
       $shortcut.WorkingDirectory = $SkillRoot
       $shortcut.Description = 'Launch the official Codex app with Codex Dream Skin'
       $shortcut.Save()
@@ -69,7 +69,7 @@ try {
 
     $restore = $shell.CreateShortcut((Join-Path $desktop 'Codex Dream Skin - Restore.lnk'))
     $restore.TargetPath = $powershell
-    $restore.Arguments = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$restoreScript`"$portArgument -RestoreBaseTheme -PromptRestart"
+    $restore.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$restoreScript`"$portArgument -RestoreBaseTheme -PromptRestart"
     $restore.WorkingDirectory = $SkillRoot
     $restore.Description = 'Restore the official Codex appearance and close the CDP session'
     $restore.Save()
@@ -77,13 +77,13 @@ try {
     foreach ($folder in @($desktop, $startMenu)) {
       $tray = $shell.CreateShortcut((Join-Path $folder 'Codex Dream Skin - Tray.lnk'))
       $tray.TargetPath = $powershell
-      $tray.Arguments = "-NoProfile -STA -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File `"$trayScript`"$portArgument"
+      $tray.Arguments = "-NoProfile -STA -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$trayScript`"$portArgument"
       $tray.WorkingDirectory = $SkillRoot
       $tray.Description = 'Open Codex Dream Skin status and theme controls in the system tray'
       $tray.Save()
     }
     Start-Process -FilePath $powershell -ArgumentList `
-      "-NoProfile -STA -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File `"$trayScript`"$portArgument" `
+      "-NoProfile -STA -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$trayScript`"$portArgument" `
       -WindowStyle Hidden | Out-Null
 
     if (-not $NoAutoHeal) {
@@ -91,12 +91,12 @@ try {
       Write-DreamSkinUtf8FileAtomically -Path (Join-Path $StateRoot 'guard.enabled') -Content "enabled`r`n"
       $guard = $shell.CreateShortcut((Join-Path $startup 'Codex Dream Skin Guard.lnk'))
       $guard.TargetPath = $powershell
-      $guard.Arguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File `"$guardScript`"$portArgument"
+      $guard.Arguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$guardScript`"$portArgument"
       $guard.WorkingDirectory = $SkillRoot
       $guard.Description = 'Keep the Codex theme manager compatible after Store updates'
       $guard.Save()
       Start-Process -FilePath $powershell -ArgumentList `
-        "-NoProfile -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File `"$guardScript`"$portArgument" `
+        "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$guardScript`"$portArgument" `
         -WindowStyle Hidden | Out-Null
     }
   }

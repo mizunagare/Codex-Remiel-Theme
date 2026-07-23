@@ -35,7 +35,7 @@
   const HOME_UTILITY_CLASS = "dream-home-utility";
   const SPINNER_SELECTOR = ".animate-spin, [class~='animate-spin'], [role='progressbar'], [data-loading='true']";
   const REMIEL_ICON_VERSION = "1";
-  const remielSvg = (body) => `<svg class="dream-xuan-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  const remielSvg = (body) => `<svg class="dream-remiel-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
   const REMIEL_ICON_SVGS = {
     seraph: remielSvg(`
       <path d="M12 2.1 14.1 8l5.8-2.2-3.6 5.1 5.6 2.5-6.1.5.8 6.1-4.6-4.1L7.4 20l.8-6.1-6.1-.5 5.6-2.5-3.6-5.1L9.9 8 12 2.1Z" fill="#fff4fb" stroke="#c7a9ff" stroke-width=".85" stroke-linejoin="round"/>
@@ -336,19 +336,19 @@
     document.querySelectorAll(".dream-task").forEach((node) => node.classList.remove("dream-task"));
     document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
     document.querySelectorAll(`.${HOME_UTILITY_CLASS}`).forEach((node) => node.classList.remove(HOME_UTILITY_CLASS));
-    document.querySelectorAll(".dream-xuan-icon").forEach((node) => node.remove());
-    document.querySelectorAll(".dream-xuan-brand-mark").forEach((node) => node.remove());
+    document.querySelectorAll(".dream-remiel-icon").forEach((node) => node.remove());
+    document.querySelectorAll(".dream-remiel-brand-mark").forEach((node) => node.remove());
     document.querySelectorAll(".dream-composer-send").forEach((node) => node.classList.remove("dream-composer-send"));
     document.querySelectorAll(".dream-composer-processing").forEach((node) => node.classList.remove("dream-composer-processing"));
     document.querySelectorAll(".dream-permission-menu").forEach((node) => node.classList.remove("dream-permission-menu"));
     document.querySelectorAll(".dream-permission-item").forEach((node) => node.classList.remove("dream-permission-item"));
-    document.querySelectorAll(".dream-xuanniao-spinner-mark").forEach((node) => node.remove());
+    document.querySelectorAll(".dream-remiel-spinner-mark").forEach((node) => node.remove());
     document.querySelectorAll(".dream-native-icon-source").forEach((node) => node.classList.remove("dream-native-icon-source"));
-    document.querySelectorAll(".dream-xuanniao-spinner-source").forEach((node) => {
-      node.classList.remove("dream-xuanniao-spinner-source");
-      node.parentElement?.classList.remove("dream-xuanniao-spinner");
+    document.querySelectorAll(".dream-remiel-spinner-source").forEach((node) => {
+      node.classList.remove("dream-remiel-spinner-source");
+      node.parentElement?.classList.remove("dream-remiel-spinner");
     });
-    document.querySelectorAll(".dream-xuanniao-spinner").forEach((node) => node.classList.remove("dream-xuanniao-spinner"));
+    document.querySelectorAll(".dream-remiel-spinner").forEach((node) => node.classList.remove("dream-remiel-spinner"));
     document.getElementById(STYLE_ID)?.remove();
     document.getElementById(CHROME_ID)?.remove();
   };
@@ -474,12 +474,12 @@
         source.classList.add("dream-native-icon-source");
       }
       let replacement = source.previousElementSibling;
-      if (!replacement?.classList.contains("dream-xuan-icon")) {
+      if (!replacement?.classList.contains("dream-remiel-icon")) {
         replacement = document.createElement("span");
         replacement.setAttribute("aria-hidden", "true");
         source.parentElement?.insertBefore(replacement, source);
       }
-      const expectedClass = `dream-xuan-icon dream-xuan-icon-${iconName}`;
+      const expectedClass = `dream-remiel-icon dream-remiel-icon-${iconName}`;
       const iconSignature = `${REMIEL_ICON_VERSION}:${iconName}`;
       if (replacement.className !== expectedClass) replacement.className = expectedClass;
       if (replacement.dataset.dreamIcon !== iconSignature) {
@@ -523,10 +523,10 @@
       button.classList.toggle("dream-nav-primary", primaryLabels.has(label));
       button.classList.toggle("dream-section-heading", sectionLabels.has(label));
       if (label === "Codex") {
-        let brandMark = button.querySelector?.(":scope > .dream-xuan-brand-mark");
+        let brandMark = button.querySelector?.(":scope > .dream-remiel-brand-mark");
         if (!brandMark) {
           brandMark = document.createElement("span");
-          brandMark.className = "dream-xuan-brand-mark";
+          brandMark.className = "dream-remiel-brand-mark";
           brandMark.setAttribute("aria-hidden", "true");
           button.insertBefore?.(brandMark, button.firstChild || null);
         }
@@ -536,13 +536,13 @@
           brandMark.dataset.dreamIcon = brandSignature;
         }
       }
-      installRemielIcon(button.querySelector?.("svg:not(.dream-xuan-svg)"), iconNameForLabel(label));
+      installRemielIcon(button.querySelector?.("svg:not(.dream-remiel-svg)"), iconNameForLabel(label));
     }
     for (const source of [...(shellSidebar.querySelectorAll?.("svg") || [])]) {
-      if (source.classList.contains("dream-xuan-svg")) continue;
+      if (source.classList.contains("dream-remiel-svg")) continue;
       const firstPath = source.querySelector?.("path")?.getAttribute?.("d") || "";
       const priorReplacement = source.previousElementSibling;
-      const knownFolder = priorReplacement?.classList.contains("dream-xuan-icon-folder") ||
+      const knownFolder = priorReplacement?.classList.contains("dream-remiel-icon-folder") ||
         firstPath.startsWith("M4.75488 2.1416") || firstPath.startsWith("M5.36914 2.1416");
       if (knownFolder) installRemielIcon(source, "folder");
     }
@@ -568,7 +568,7 @@
       else if (isComposerAction) iconName = "seraph";
       button.classList.toggle("dream-composer-send", isComposerAction && !isProcessing);
       button.classList.toggle("dream-composer-processing", isProcessing);
-      if (iconName) installRemielIcon(button.querySelector("svg:not(.dream-xuan-svg)"), iconName);
+      if (iconName) installRemielIcon(button.querySelector("svg:not(.dream-remiel-svg)"), iconName);
     }
 
     const permissionIconFor = (label) => {
@@ -588,7 +588,7 @@
       for (const { item, iconName } of themedItems) {
         item.classList.add("dream-permission-item");
         const row = item.querySelector(":scope > div");
-        const nativeIcons = [...(row?.querySelectorAll?.(":scope > svg:not(.dream-xuan-svg)") || [])];
+        const nativeIcons = [...(row?.querySelectorAll?.(":scope > svg:not(.dream-remiel-svg)") || [])];
         installRemielIcon(nativeIcons[0], iconName);
         if (nativeIcons.length > 1) installRemielIcon(nativeIcons[nativeIcons.length - 1], "seraph");
       }
@@ -602,12 +602,12 @@
       source.querySelector?.('path[opacity="0.3"], path[opacity=".3"]') &&
       (source.querySelectorAll?.("path")?.length || 0) >= 2
     );
-    for (const source of [...document.querySelectorAll(".dream-xuanniao-spinner-source")]) {
+    for (const source of [...document.querySelectorAll(".dream-remiel-spinner-source")]) {
       if (isNativeSpinner(source)) continue;
-      source.classList.remove("dream-xuanniao-spinner-source");
+      source.classList.remove("dream-remiel-spinner-source");
       const host = source.tagName?.toLowerCase() === "svg" ? source.parentElement : source;
-      host?.classList.remove("dream-xuanniao-spinner");
-      host?.querySelector?.(":scope > .dream-xuanniao-spinner-mark")?.remove();
+      host?.classList.remove("dream-remiel-spinner");
+      host?.querySelector?.(":scope > .dream-remiel-spinner-mark")?.remove();
     }
     const spinnerCandidates = new Set([
       ...document.querySelectorAll(SPINNER_SELECTOR),
@@ -621,16 +621,16 @@
       if (bounds && (bounds.width > 34 || bounds.height > 34)) continue;
       const host = source.tagName?.toLowerCase() === "svg" ? source.parentElement : source;
       if (!host) continue;
-      if (!source.classList.contains("dream-xuanniao-spinner-source")) {
-        source.classList.add("dream-xuanniao-spinner-source");
+      if (!source.classList.contains("dream-remiel-spinner-source")) {
+        source.classList.add("dream-remiel-spinner-source");
       }
-      if (!host.classList.contains("dream-xuanniao-spinner")) {
-        host.classList.add("dream-xuanniao-spinner");
+      if (!host.classList.contains("dream-remiel-spinner")) {
+        host.classList.add("dream-remiel-spinner");
       }
-      let spinnerMark = host.querySelector?.(":scope > .dream-xuanniao-spinner-mark");
+      let spinnerMark = host.querySelector?.(":scope > .dream-remiel-spinner-mark");
       if (!spinnerMark) {
         spinnerMark = document.createElement("span");
-        spinnerMark.className = "dream-xuanniao-spinner-mark";
+        spinnerMark.className = "dream-remiel-spinner-mark";
         spinnerMark.setAttribute("aria-hidden", "true");
         host.appendChild?.(spinnerMark);
       }

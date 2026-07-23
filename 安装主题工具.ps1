@@ -90,7 +90,7 @@ try {
   foreach ($folder in @($desktop, $startMenu)) {
     $shortcut = $shell.CreateShortcut((Join-Path $folder 'Codex 主题.lnk'))
     $shortcut.TargetPath = (Get-Command powershell.exe -ErrorAction Stop).Source
-    $shortcut.Arguments = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$launcher`" -Port $Port -PromptRestart"
+    $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$launcher`" -Port $Port -PromptRestart"
     $shortcut.WorkingDirectory = $runtimeRoot
     $shortcut.Description = '启动 Codex 并启用主题管理页'
     $shortcut.Save()
@@ -115,7 +115,7 @@ try {
         if (Test-Path -LiteralPath $oldGuard -PathType Leaf) {
           $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
           Start-Process -FilePath $powershell -ArgumentList `
-            "-NoProfile -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File `"$oldGuard`" -Port $Port" `
+            "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$oldGuard`" -Port $Port" `
             -WindowStyle Hidden | Out-Null
         }
       }

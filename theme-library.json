@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "name": "Codex Remiel Themes",
+  "name": "Codex Remiel Theme",
   "themes": [
     {
       "id": "remiel-seraph-system",
       "name": "蕾米埃尔｜星芒圣翼",
-      "themeUrl": "windows/themes/remiel-seraph-system-v1/theme.json",
-      "previewUrl": "windows/themes/remiel-seraph-system-v1/background.jpg"
+      "themeUrl": "windows/themes/绝区零 蕾米埃尔/theme.json",
+      "previewUrl": "windows/themes/绝区零 蕾米埃尔/background.jpg"
     }
   ]
 }

@@ -9,7 +9,7 @@ Apply a reversible renderer skin through Chromium DevTools Protocol while launch
 
 ## Workflow
 
-1. Install Node.js 22 or newer, close Codex, then run `scripts/install-dream-skin.ps1` once to preserve the user's native appearance settings, seed the Remiel theme, and create launch/restore/tray shortcuts.
+1. Install Node.js 22 or newer, close Codex, then run `scripts/install-dream-skin.ps1` once to preserve the user's native appearance settings, seed the Arina Hashimoto theme, and create launch/restore/tray shortcuts.
 2. Run `scripts/start-dream-skin.ps1`. The shortcut asks before restarting an already-open Codex app; CLI callers must explicitly add `-RestartExisting`.
 3. Run `scripts/verify-dream-skin.ps1 -ScreenshotPath <absolute-path>` after launch. Treat a missing continuous wallpaper, home shell, native composer, sidebar layer, or injection marker as failure. The native suggestion count is responsive and may be two to four.
 4. Inspect the screenshot against `references/qa-inventory.md`. Verify both the home screen and a normal task before signing off.
@@ -39,7 +39,7 @@ Apply a reversible renderer skin through Chromium DevTools Protocol while launch
 ```powershell
 powershell -NoProfile -File tests\run-tests.ps1
 node --check scripts\injector.mjs
-node --check themes\remiel-seraph-system-v1\theme.js
+node --check "themes\绝区零 蕾米埃尔\theme.js"
 ```
 
 ## Resources
@@ -49,7 +49,7 @@ node --check themes\remiel-seraph-system-v1\theme.js
 - `scripts/config-utf8.ps1`: atomic UTF-8 configuration backup, selective restore, and explicit recovery.
 - `engine/theme-manager.js`: theme-neutral `设置 → 主题` page, installed-theme switching, official-appearance pause, and configurable local/HTTPS theme libraries.
 - `themes/<theme-id>/`: a self-contained executable theme bundle. Each folder owns its `theme.json`, `theme.css`, `theme.js`, background, icons, and optional private assets.
-- `themes/remiel-seraph-system-v1/`: bundled Remiel theme; its seraph-star icons and animations do not live in the shared engine.
+- `themes/绝区零 蕾米埃尔/`: bundled Remiel theme; its star-seraph icons and animations do not live in the shared engine.
 - `scripts/theme-windows.ps1`: persistent active/saved theme store, safe image import, pause state, and preset seeding.
 - `scripts/tray-dream-skin.ps1`: Windows Forms tray for apply, pause, import, save, switch, and complete restore.
 - `scripts/guard-dream-skin.ps1`: user-level Store-update and injector auto-heal loop with verified package/process identity.
