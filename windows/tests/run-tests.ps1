@@ -376,9 +376,12 @@ try {
   $initialTheme = Read-DreamSkinTheme -ThemeDirectory $themePaths.Active
   if ($initialTheme.Theme.id -cne 'remiel-seraph-system' -or
     $initialTheme.Theme.name -cne '蕾米埃尔｜星芒圣翼' -or
-    [int]$initialTheme.Theme.schemaVersion -ne 2 -or
+    [int]$initialTheme.Theme.schemaVersion -ne 4 -or
     -not (Test-Path -LiteralPath $initialTheme.CssPath) -or
     -not (Test-Path -LiteralPath $initialTheme.RendererPath) -or
+    @($initialTheme.Theme.icons.PSObject.Properties).Count -lt 1 -or
+    (Test-Path -LiteralPath (Join-Path $themePaths.Active 'install.json')) -or
+    (Test-Path -LiteralPath (Join-Path $themePaths.Active 'icons.json')) -or
     $initialTheme.Theme.appearance -cne 'auto' -or
     $initialTheme.Theme.art.safeArea -cne 'left' -or
     $initialTheme.Theme.art.taskMode -cne 'ambient' -or
@@ -411,6 +414,19 @@ try {
   if ($idempotentTheme.Theme.id -cne 'custom' -or
     @(Get-DreamSkinSavedThemes -StateRoot $themeStateRoot).Count -ne 1) {
     throw 'Theme-store initialization overwrote the active custom theme or duplicated its bundled preset.'
+  }
+  $officialUpgradeStateRoot = Join-Path $temporaryRoot 'official-upgrade-state'
+  $officialUpgradePaths = Initialize-DreamSkinThemeStore -SkillRoot $Root -StateRoot $officialUpgradeStateRoot
+  $officialThemePath = Join-Path $officialUpgradePaths.Active 'theme.json'
+  $staleOfficialTheme = (Read-DreamSkinUtf8File -Path $officialThemePath) | ConvertFrom-Json -ErrorAction Stop
+  $staleOfficialTheme.PSObject.Properties.Remove('icons')
+  $staleOfficialTheme | Add-Member -NotePropertyName brandIcon -NotePropertyValue '' -Force
+  Write-DreamSkinTheme -ThemeDirectory $officialUpgradePaths.Active -Theme $staleOfficialTheme
+  $null = Initialize-DreamSkinThemeStore -SkillRoot $Root -StateRoot $officialUpgradeStateRoot
+  $upgradedOfficialTheme = Read-DreamSkinTheme -ThemeDirectory $officialUpgradePaths.Active
+  if ($upgradedOfficialTheme.Theme.brandIcon -cne 'seraph' -or
+    @($upgradedOfficialTheme.Theme.icons.PSObject.Properties).Count -lt 1) {
+    throw 'Bundled theme framework upgrade did not restore official icon metadata.'
   }
   $savedTheme = Save-DreamSkinCurrentTheme -Name '已保存主题' -StateRoot $themeStateRoot
   if ($savedTheme.Theme.name -cne '已保存主题' -or @(Get-DreamSkinSavedThemes -StateRoot $themeStateRoot).Count -ne 2) {
@@ -485,7 +501,35 @@ try {
   if (-not $reparseInitRejected) { throw 'Theme-store initialization followed an active-theme junction.' }
   [System.IO.Directory]::Delete($reparseActive)
 
-  $css = Read-DreamSkinUtf8File -Path (Join-Path $bundledTheme 'theme.css')
+  $bundledThemeDirectories = @(Get-ChildItem -LiteralPath (Join-Path $Root 'themes') -Directory)
+  $sharedRendererPath = Join-Path $Root 'engine\theme-runtime.js'
+  $sharedCssPath = Join-Path $Root 'engine\theme-base.css'
+  $themeRenderer = Read-DreamSkinUtf8File -Path $sharedRendererPath
+  $defaultPackageCount = 0
+  foreach ($themeDirectory in $bundledThemeDirectories) {
+    $themePath = Join-Path $themeDirectory.FullName 'theme.json'
+    if (-not (Test-Path -LiteralPath $themePath -PathType Leaf) -or
+      (Test-Path -LiteralPath (Join-Path $themeDirectory.FullName 'install.json')) -or
+      (Test-Path -LiteralPath (Join-Path $themeDirectory.FullName 'icons.json'))) {
+      throw "Bundled theme package must use a single theme.json manifest: $($themeDirectory.Name)"
+    }
+    $manifest = (Read-DreamSkinUtf8File -Path $themePath) | ConvertFrom-Json
+    if ($manifest.install.default) { $defaultPackageCount += 1 }
+    if ([int]$manifest.schemaVersion -ne 4 -or $manifest.entrypoints.icons -or
+      "$($manifest.framework.id)" -cne 'dream-skin' -or [int]$manifest.framework.version -ne 1 -or
+      $manifest.entrypoints.renderer -or @($manifest.install.files) -contains 'theme.js' -or
+      @($manifest.icons.PSObject.Properties).Count -lt 1 -or
+      -not $themeRenderer.Contains('__DREAM_ICONS_JSON__') -or
+      $themeRenderer -match ':\s*(?:xuanSvg|remielSvg)\s*\(') {
+      throw "Bundled theme did not use the shared framework and inline icon configuration: $($themeDirectory.Name)"
+    }
+  }
+  if ($defaultPackageCount -ne 1) { throw 'Bundled theme packages must declare exactly one default theme in theme.json.' }
+  if (Test-Path -LiteralPath (Join-Path $Root 'pets')) {
+    throw 'Repository pet packages must live at the project root, not under windows/.'
+  }
+
+  $css = Read-DreamSkinUtf8File -Path $sharedCssPath
   foreach ($requiredCss in @(
     'background-image: var(--dream-art)',
     'main.main-surface > header.app-header-tint',
@@ -493,16 +537,22 @@ try {
     '.thread-scroll-container .bg-gradient-to-t.from-token-main-surface-primary',
     '--dream-immersive-composer',
     'background-position: var(--dream-art-position)',
+    '.dream-home > .dream-home-content',
     '.dream-home-utility',
     '.dream-home-utility-present .dream-home .composer-surface-chrome',
     '.dream-route-task:is(.dream-task-ambient, .dream-task-banner)',
-    '.composer-surface-chrome .dream-remiel-icon',
+    '.composer-surface-chrome .dream-theme-icon',
+    'body:has(nav[aria-label="设置"], nav[aria-label="Settings"])',
+    'div.main-surface',
     'position: fixed !important',
-    '.dream-permission-menu .dream-permission-item .dream-remiel-icon-seraph',
+    '.dream-permission-menu .dream-permission-item .dream-theme-icon-brand',
     'html.codex-dream-skin.dream-window-dragging *',
     'animation-play-state: paused !important'
   )) {
     if (-not $css.Contains($requiredCss)) { throw "Windows immersive CSS is missing: $requiredCss" }
+  }
+  if ($css.Contains('.dream-home > div:first-child')) {
+    throw 'Shared home layout still depends on the first child and can hide the composer after a Codex DOM upgrade.'
   }
   if ($css.Contains(':has(main.main-surface')) {
     throw 'Window-wide route styling still uses a costly relational selector instead of renderer route classes.'
@@ -540,22 +590,33 @@ try {
     throw 'Start does not preserve an existing pause marker when startup rolls back.'
   }
 
-  $rendererSource = Read-DreamSkinUtf8File -Path (Join-Path $bundledTheme 'theme.js')
+  $rendererSource = Read-DreamSkinUtf8File -Path $sharedRendererPath
   foreach ($requiredRendererBehavior in @('dream-home-utility', 'artMetadata', 'detectShellAppearance')) {
     if (-not $rendererSource.Contains($requiredRendererBehavior)) {
       throw "Renderer adaptive behavior is missing: $requiredRendererBehavior"
     }
   }
   $injectorSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\injector.mjs')
+  $themePackageSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\theme-package.mjs')
   foreach ($requiredInjectorBehavior in @(
-    'MAX_ART_BYTES', 'createHash', 'readImageMetadata', '50MP safety limit', 'STRONG_THEME_AUDIT_MS',
+    'createHash', 'STRONG_THEME_AUDIT_MS',
     'Page.addScriptToEvaluateOnNewDocument', 'Page.removeScriptToEvaluateOnNewDocument', 'earlyPayloadFor',
-    'watchFiles(options.themeDir', 'theme hot reload', 'resolveGitHubRepository', 'listInstalledPets',
-    'selectPet', 'installAndSelectBundledPet', 'selected-avatar-id', 'MAX_PET_SPRITESHEET_BYTES',
-    'listBundledThemes', 'installBundledTheme', 'setBaseThemeEnabled'
+    'watchFiles(options.themeDir', 'theme hot reload', 'palette: payload.palette', 'getThemePreview',
+    'selectPet', 'installBundledTheme'
   )) {
     if (-not $injectorSource.Contains($requiredInjectorBehavior)) {
       throw "Injector theme safety is missing: $requiredInjectorBehavior"
+    }
+  }
+  foreach ($requiredPackageBehavior in @(
+    'MAX_ART_BYTES', 'readImageMetadata', '50MP safety limit', 'resolveGitHubRepository',
+    'listInstalledPets', 'installAndSelectBundledPet', 'selected-avatar-id', 'MAX_PET_SPRITESHEET_BYTES',
+    'listBundledThemes', 'setBaseThemeEnabled', 'createLocalThemePackage', 'pruneDuplicateInstalledThemeDirectories',
+    'installedThemePreviewDataUrl', 'bundledThemePreviewDataUrl',
+    'petPreviewDataUrl', 'installedPetPreviewDataUrl', 'themePetSummary', 'processingIcon', 'spinnerIcon'
+  )) {
+    if (-not $themePackageSource.Contains($requiredPackageBehavior)) {
+      throw "Theme package module safety is missing: $requiredPackageBehavior"
     }
   }
   $themeSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\theme-windows.ps1')
@@ -565,7 +626,8 @@ try {
     'Get-DreamSkinValidatedImageMetadata',
     '16384px / 50MP safety limit',
     'Assert-DreamSkinImageFile -Path $temporary',
-    'Assert-DreamSkinImageFile -Path $imageArchive'
+    'Assert-DreamSkinImageFile -Path $imageArchive',
+    'Update-DreamSkinMaterializedThemeFramework'
   )) {
     if (-not $themeSource.Contains($requiredThemeSafety)) {
       throw "PowerShell theme-store safety is missing: $requiredThemeSafety"
@@ -581,7 +643,8 @@ try {
     'scheduleSidebarEnsure', 'appliedProfileSignature', '}, 30000);',
     'permissionIconFor', 'permissionFull', 'permissionMenuChanged', 'permissionMenuListener', 'permissionButtons',
     'windowDragStart', 'windowDragEnd', 'dream-window-dragging',
-    'installRemielIcon(nativeIcons[nativeIcons.length - 1], "seraph")'
+    'installThemeIcon(nativeIcons[nativeIcons.length - 1], brandIcon)', 'sendIcon', 'processingIcon', 'spinnerIcon',
+    'dream-theme-icon-processing'
   )) {
     if (-not $rendererSource.Contains($requiredPerformanceBehavior)) {
       throw "Renderer route-performance behavior is missing: $requiredPerformanceBehavior"
@@ -593,31 +656,99 @@ try {
   $managerSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'engine\theme-manager.js')
   foreach ($requiredManagerBehavior in @(
     'data-settings-panel-slug', 'dream-theme-manager', '还原官方外观',
-    'addLibrary', 'addRepository', 'getCatalog', 'installLibraryTheme',
-    '主题宠物', 'selectPet', '已绑定', '热重载已开启',
-    'installBundledTheme', '安装主题', 'dtm-preview', '<img src="${escapeHtml(preview)}"',
+    '主题宠物', 'selectPet', '已绑定', '热重载已开启', 'data-manager-close',
+    'installBundledTheme', '安装主题', 'dtm-preview', 'data-dtm-theme-preview-key',
     'dtm-tabs', 'data-manager-tab="themes"', 'data-manager-tab="pets"',
-    'installedThemeIds', '!installedThemeIds.has(theme.id)', 'dtm-card-line', 'dtm-card-main'
+    'installedThemeIds', '!installedThemeIds.has(theme.id)', 'dtm-card-line', 'dtm-card-main',
+    'createLocalTheme', 'data-local-theme-open', 'data-local-theme-create', '仅本地',
+    'data-local-theme-image-file', 'data-local-icon-file', 'data-local-theme-icons-file',
+    'dtm-icon-form', 'dtm-icon-field', 'dtm-icon-preview', 'localJsonIcons',
+    'imageBase64', 'iconsJsonText', 'iconOverrides', 'data-local-theme-accent', 'processingBase', '--dtm-surface',
+    'dtm-swatches', 'data-local-color-preset', 'data-local-color-picker', 'transparent',
+    'defaultIconLibrary', 'data-local-icon-library', 'data-local-new-icon-key', 'data-local-new-icon-file', 'image/gif',
+    'dtm-pet-sprite', 'dtm-bound-pet', 'petName',
+    'getThemePreview', 'themePreviewCache', 'applyThemePreviewImages',
+    'getPetPreview', 'petPreviewCache', 'data-dtm-pet-preview-pet',
+    'dtm-loading-card', 'showSequence', 'dtm-file-actions', 'dtm-close-hit', 'onPanelKeydown',
+    'closeButtonFromPoint', 'onPanelPointerMove',
+    '执行中动图', '加载转圈',
+    'data-theme-pet-edit', 'data-theme-pet-pick', 'updateThemePet'
   )) {
     if (-not $managerSource.Contains($requiredManagerBehavior)) {
       throw "Independent theme manager behavior is missing: $requiredManagerBehavior"
     }
   }
+  if ($managerSource.Contains('宠物：')) {
+    throw 'Theme cards must show the bound pet image directly instead of a pet-name text chip.'
+  }
+  foreach ($removedManagerBehavior in @('addLibrary', 'addRepository', 'getCatalog', 'installLibraryTheme', 'data-library-add', 'data-repository-add', 'GitHub 仓库安装')) {
+    if ($managerSource.Contains($removedManagerBehavior)) {
+      throw "Removed theme library UI behavior is still present: $removedManagerBehavior"
+    }
+  }
   $guardSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\guard-dream-skin.ps1')
   foreach ($requiredGuardBehavior in @(
-    'Get-DreamSkinCodexInstall', 'Test-RecordedInjectorHealthy', '-RestartExisting -PreservePause', 'guard.enabled'
+    'Get-DreamSkinCodexInstall', 'Test-RecordedInjectorHealthy', '-PreservePause',
+    'MaxConsecutiveFailures', 'guard.failed.json', 'RestartCooldownSeconds',
+    '-RestartExisting', '-NoRestartExisting', 'guard.enabled'
   )) {
     if (-not $guardSource.Contains($requiredGuardBehavior)) {
       throw "Update auto-heal behavior is missing: $requiredGuardBehavior"
     }
   }
-  if (-not $css.Contains('dream-remiel-orbit') -or
+  $traySource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\tray-dream-skin.ps1')
+  foreach ($requiredTrayBehavior in @(
+    'Get-DreamSkinTrayStatus', 'Get-DreamSkinTrayLogLines', '最近 Guard 日志',
+    '最近注入日志', '最近错误日志', '打开日志文件夹', 'Update-DreamSkinNotifyText'
+  )) {
+    if (-not $traySource.Contains($requiredTrayBehavior)) {
+      throw "Tray status/log behavior is missing: $requiredTrayBehavior"
+    }
+  }
+  $injectorSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\injector.mjs')
+  foreach ($requiredRuntimeBehavior in @(
+    'RUNTIME_PROTOCOL_VERSION', '__CODEX_DREAM_SKIN_RUNTIME__',
+    'result.protocolVersion === result.expectedProtocolVersion'
+  )) {
+    if (-not $injectorSource.Contains($requiredRuntimeBehavior)) {
+      throw "Framework-owned runtime verification is missing: $requiredRuntimeBehavior"
+    }
+  }
+  if ($injectorSource.Contains('result.version === result.expectedVersion')) {
+    throw 'Runtime verification must not couple a theme renderer version to the injector version.'
+  }
+  foreach ($requiredFloatingCss in @(
+    'bg-token-dropdown-background',
+    'data-pip-obstacle="thread-summary-panel"',
+    'data-slot="thread-summary-panel-item-button"',
+    'data-slot="thread-summary-panel-item-group"',
+    'bg-token-main-surface-tertiary',
+    'data-app-shell-focus-area="right-panel"',
+    'bg-token-bg-fog',
+    'hover:bg-token-list-hover-background',
+    'Final right-panel pass',
+    '@layer utilities',
+    'rounded-full'
+  )) {
+    if (-not $css.Contains($requiredFloatingCss)) {
+      throw "Shared floating/review surface theme CSS is missing: $requiredFloatingCss"
+    }
+  }
+  if (-not $css.Contains('dream-theme-orbit') -or
     -not $css.Contains('top: -1px') -or
+    -not $css.Contains('.dream-theme-spinner-source:not(.dream-theme-spinner)') -or
+    -not $css.Contains('.dream-theme-spinner-source.dream-theme-spinner > :not(.dream-theme-spinner-mark)') -or
     -not $rendererSource.Contains('document.querySelectorAll(SPINNER_SELECTOR)') -or
     -not $rendererSource.Contains('aside.app-shell-left-panel svg')) {
-    throw 'The global Remiel orbit spinner is missing or still scoped to the sidebar.'
+    throw 'The shared global theme orbit spinner is missing or still scoped to the sidebar.'
   }
-  $bundledPet = Join-Path $Root 'pets\remiel-switch'
+  $remielCss = Read-DreamSkinUtf8File -Path (Join-Path $Root 'themes\绝区零 蕾米埃尔\theme.css')
+  if (-not $remielCss.Contains('--dream-brand-suffix: " · 蕾米埃尔"') -or
+    $remielCss.Contains('.dream-remiel-spinner') -or
+    $remielCss.Contains('body:has(nav[aria-label="设置"], nav[aria-label="Settings"])')) {
+    throw 'The Remiel package must contain only its palette/brand overrides, not copied framework behavior.'
+  }
+  $bundledPet = Join-Path (Split-Path -Parent $Root) 'pets\remiel-switch'
   $bundledPetManifestPath = Join-Path $bundledPet 'pet.json'
   if (-not (Test-Path -LiteralPath $bundledPetManifestPath -PathType Leaf)) {
     throw 'The Remiel package no longer carries its selected v2 pet package in the independent pets folder.'
@@ -641,6 +772,12 @@ try {
     "Join-Path `$stateRoot 'runtime'",
     'Stop-PreviousThemeHelpers',
     "Join-Path `$sourceWindows '*'",
+    'Remove-Item -LiteralPath $fullRuntimeWindows -Recurse -Force',
+    "Join-Path `$packageRoot 'pets'",
+    "Join-Path `$runtimeRoot 'pets'",
+    'Remove-Item -LiteralPath $fullRuntimePets -Recurse -Force',
+    "Join-Path `$runtimeWindows 'pets'",
+    'Remove-Item -LiteralPath $fullLegacyPets -Recurse -Force',
     "'Codex 主题.lnk'",
     '现在重启并继续安装',
     '& $installer -Port $Port -ManagerOnly',
@@ -692,6 +829,8 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Injector one-shot Browser ID regression test failed.' }
   & $node.Path (Join-Path $PSScriptRoot 'image-metadata.test.mjs')
   if ($LASTEXITCODE -ne 0) { throw 'Image metadata regression test failed.' }
+  & $node.Path (Join-Path $PSScriptRoot 'local-theme.test.mjs')
+  if ($LASTEXITCODE -ne 0) { throw 'Local-only theme regression test failed.' }
 
   Write-Host 'PASS: config transactions, theme manager, update auto-heal, state safety, and loopback CDP validation.'
 } finally {
