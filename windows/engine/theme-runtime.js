@@ -21,17 +21,37 @@
     "dream-task-off",
     "dream-route-home",
     "dream-route-task",
+    "dream-route-settings",
     "dream-home-utility-present",
     "dream-window-dragging",
+    "dream-composer-default",
+    "dream-composer-compact",
+    "dream-composer-comfortable",
+    "dream-composer-wide",
+    "dream-composer-full",
   ];
   const ROOT_PROPERTIES = [
     "--dream-art",
     "--dream-art-position",
+    "--dream-art-fit",
+    "--dream-art-size",
+    "--dream-art-repeat",
     "--dream-focus-x",
     "--dream-focus-y",
     "--dream-accent",
     "--dream-accent-ink",
     "--dream-image-luma",
+    "--dream-composer-max-width",
+    "--dream-composer-min-height",
+    "--dream-composer-font-size",
+    "--dream-sidebar-font-family",
+    "--dream-sidebar-font-size",
+    "--dream-sidebar-font-weight",
+    "--dream-sidebar-text",
+    "--dream-sidebar-icon",
+    "--dream-sidebar-text-brightness",
+    "--dream-sidebar-text-dim",
+    "--dream-sidebar-text-lift",
   ];
   const HOME_UTILITY_CLASS = "dream-home-utility";
   const SPINNER_SELECTOR = ".animate-spin, [class~='animate-spin'], [role='progressbar'], [data-loading='true']";
@@ -44,6 +64,8 @@
   let samplingNativeShell = false;
   let observer = null;
   let sidebarDirty = true;
+  let composerDirty = true;
+  let routeDirty = true;
   let spinnerDirty = true;
   let lastSpinnerAt = 0;
   let sidebarReadyAt = 0;
@@ -104,6 +126,15 @@
         ? candidate.trim()
         : "";
     const metadataRatio = Number(config?.artMetadata?.ratio);
+    const display = config.display && typeof config.display === "object" ? config.display : {};
+    const rotation = display.rotation && typeof display.rotation === "object" ? display.rotation : {};
+    const sidebar = config.sidebar && typeof config.sidebar === "object" ? config.sidebar : {};
+    const composer = config.composer && typeof config.composer === "object" ? config.composer : {};
+    const intervalSeconds = Number(rotation.intervalSeconds || 45);
+    const cleanFont = (candidate) =>
+      typeof candidate === "string" && candidate.length <= 120 && !/[\u0000-\u001f;{}]/.test(candidate)
+        ? candidate.trim()
+        : "";
     return {
       appearance,
       safeArea,
@@ -119,25 +150,54 @@
       spinnerIcon: /^[A-Za-z][A-Za-z0-9_-]{0,39}$/.test(config.spinnerIcon || "") ? config.spinnerIcon : "",
       focusX: hasNumber(art.focusX) ? clamp(art.focusX) : null,
       focusY: hasNumber(art.focusY) ? clamp(art.focusY) : null,
+      immersive: art.immersive === true,
       accent: safeAccent,
       initialAspect: Number.isFinite(metadataRatio) && metadataRatio > 0 ? metadataRatio : null,
+      imageFit: ["cover", "contain", "stretch", "auto"].includes(display.fit) ? display.fit : "cover",
+      imagePosition: ["auto", "center", "left", "right", "top", "bottom", "left top", "left center", "left bottom", "right top", "right center", "right bottom", "center top", "center bottom"].includes(display.position) ? display.position : "auto",
+      imageRepeat: ["no-repeat", "repeat", "repeat-x", "repeat-y"].includes(display.repeat) ? display.repeat : "no-repeat",
+      rotationEnabled: rotation.enabled === true,
+      rotationIntervalMs: Number.isFinite(intervalSeconds) ? Math.max(5000, Math.min(3600000, Math.round(intervalSeconds) * 1000)) : 45000,
+      sidebarBackground: ["auto", "transparent", "tint", "solid"].includes(sidebar.background) ? sidebar.background : "auto",
+      sidebarFontFamily: cleanFont(sidebar.fontFamily),
+      sidebarTextColor: cleanText(sidebar.textColor, 120),
+      sidebarIconColor: cleanText(sidebar.iconColor, 120),
+      sidebarFontSize: ["default", "small", "normal", "large"].includes(sidebar.fontSize) ? sidebar.fontSize : "default",
+      sidebarFontWeight: ["default", "normal", "medium", "semibold", "bold"].includes(sidebar.fontWeight) ? sidebar.fontWeight : "default",
+      sidebarTextBrightness: Number.isFinite(Number(sidebar.textBrightness ?? sidebar.brightness)) ? Math.min(140, Math.max(60, Math.round(Number(sidebar.textBrightness ?? sidebar.brightness)))) : 100,
+      composerWidth: ["default", "compact", "comfortable", "wide", "full"].includes(composer.width) ? composer.width : "default",
+      composerHeight: ["default", "compact", "comfortable", "large"].includes(composer.height) ? composer.height : "default",
+      composerFontSize: ["default", "small", "normal", "large"].includes(composer.fontSize) ? composer.fontSize : "default",
     };
   };
 
   const previous = window[STATE_KEY];
   if (previous?.observer) previous.observer.disconnect();
   if (previous?.timer) clearInterval(previous.timer);
+  if (previous?.rotationTimer) clearInterval(previous.rotationTimer);
   if (previous?.scheduler?.timeout) clearTimeout(previous.scheduler.timeout);
-  if (previous?.artUrl) URL.revokeObjectURL(previous.artUrl);
-  const artUrl = (() => {
-    const comma = artDataUrl.indexOf(",");
-    const binary = atob(artDataUrl.slice(comma + 1));
+  if (Array.isArray(previous?.artUrls)) {
+    for (const url of new Set(previous.artUrls)) URL.revokeObjectURL(url);
+  } else if (previous?.artUrl) {
+    URL.revokeObjectURL(previous.artUrl);
+  }
+  const toObjectUrl = (dataUrl) => {
+    const comma = String(dataUrl || "").indexOf(",");
+    if (comma < 1) return "";
+    const binary = atob(String(dataUrl).slice(comma + 1));
     const bytes = new Uint8Array(binary.length);
     for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-    const mime = /^data:([^;,]+)/.exec(artDataUrl)?.[1] || "image/png";
+    const mime = /^data:([^;,]+)/.exec(String(dataUrl))?.[1] || "image/png";
     return URL.createObjectURL(new Blob([bytes], { type: mime }));
-  })();
+  };
   const config = normalizeConfig(rawConfig);
+  const runtimeImages = Array.isArray(rawConfig?.runtimeImages)
+    ? rawConfig.runtimeImages.filter((entry) => entry && typeof entry.src === "string" && /^data:image\//i.test(entry.src)).slice(0, 12)
+    : [];
+  const artDataUrls = runtimeImages.length ? runtimeImages.map((entry) => entry.src) : [artDataUrl];
+  const artUrls = artDataUrls.map(toObjectUrl).filter(Boolean);
+  let currentArtIndex = 0;
+  let artUrl = artUrls[0] || toObjectUrl(artDataUrl);
   const brandIcon = THEME_ICON_SVGS[config.brandIcon]
     ? config.brandIcon
     : (THEME_ICON_SVGS.bird ? "bird" : (THEME_ICON_SVGS.seraph ? "seraph" : Object.keys(THEME_ICON_SVGS)[0]));
@@ -342,6 +402,7 @@
       node.parentElement?.classList.remove("dream-theme-spinner");
     });
     document.querySelectorAll(".dream-theme-spinner").forEach((node) => node.classList.remove("dream-theme-spinner"));
+    document.querySelectorAll(".dream-spinner-safe").forEach((node) => node.classList.remove("dream-spinner-safe"));
     document.getElementById(STYLE_ID)?.remove();
     document.getElementById(CHROME_ID)?.remove();
   };
@@ -358,14 +419,22 @@
       : config.taskMode;
     const accent = config.accent || `rgb(${profile.accent.join(" ")})`;
     const accentInk = luminance(...profile.accent) > .42 ? "rgb(26 24 28)" : "rgb(250 248 251)";
+    const imagePosition = config.imagePosition === "auto"
+      ? `${Math.round(focusX * 100)}% ${Math.round(focusY * 100)}%`
+      : config.imagePosition;
+    const imageSize = config.imageFit === "stretch" ? "100% 100%" : config.imageFit === "auto" ? "auto" : config.imageFit;
     const signature = [appearance, focus, safeArea, taskMode, accent, accentInk, focusX, focusY,
-      profile.aspect, profile.luma].join("|");
+      profile.aspect, profile.luma, config.immersive, artUrl, imagePosition, imageSize, config.imageRepeat,
+      config.sidebarBackground, config.sidebarFontFamily, config.sidebarTextColor, config.sidebarIconColor,
+      config.sidebarFontSize, config.sidebarFontWeight, config.sidebarTextBrightness,
+      config.composerWidth, config.composerHeight, config.composerFontSize].join("|");
     if (signature === appliedProfileSignature) return;
     appliedProfileSignature = signature;
     root.classList.toggle("dream-theme-light", appearance === "light");
     root.classList.toggle("dream-theme-dark", appearance === "dark");
-    root.classList.toggle("dream-art-wide", profile.aspect >= 1.75);
-    root.classList.toggle("dream-art-standard", profile.aspect < 1.75);
+    const immersiveArt = config.immersive || profile.aspect >= 1.75;
+    root.classList.toggle("dream-art-wide", immersiveArt);
+    root.classList.toggle("dream-art-standard", !immersiveArt);
     for (const value of ["left", "center", "right"]) {
       root.classList.toggle(`dream-focus-${value}`, focus === value);
     }
@@ -375,13 +444,51 @@
     for (const value of ["ambient", "banner", "off"]) {
       root.classList.toggle(`dream-task-${value}`, taskMode === value);
     }
+    for (const value of ["auto", "transparent", "tint", "solid"]) {
+      root.classList.toggle(`dream-sidebar-${value}`, config.sidebarBackground === value);
+    }
+    for (const value of ["default", "compact", "comfortable", "wide", "full"]) {
+      root.classList.toggle(`dream-composer-${value}`, config.composerWidth === value);
+    }
     root.style.setProperty("--dream-art", `url("${artUrl}")`);
-    root.style.setProperty("--dream-art-position", `${Math.round(focusX * 100)}% ${Math.round(focusY * 100)}%`);
+    root.style.setProperty("--dream-art-position", imagePosition);
+    root.style.setProperty("--dream-art-fit", imageSize);
+    root.style.setProperty("--dream-art-size", imageSize);
+    root.style.setProperty("--dream-art-repeat", config.imageRepeat);
     root.style.setProperty("--dream-focus-x", String(focusX));
     root.style.setProperty("--dream-focus-y", String(focusY));
     root.style.setProperty("--dream-accent", accent);
     root.style.setProperty("--dream-accent-ink", accentInk);
     root.style.setProperty("--dream-image-luma", profile.luma.toFixed(3));
+    root.style.setProperty("--dream-sidebar-font-family", config.sidebarFontFamily || "inherit");
+    const sidebarTextBrightness = Math.min(140, Math.max(60, Number(config.sidebarTextBrightness) || 100));
+    root.style.setProperty("--dream-sidebar-text", config.sidebarTextColor || "var(--dream-text)");
+    root.style.setProperty("--dream-sidebar-icon", config.sidebarIconColor || config.sidebarTextColor || "var(--dream-text)");
+    root.style.setProperty("--dream-sidebar-text-brightness", `${sidebarTextBrightness}%`);
+    root.style.setProperty("--dream-sidebar-text-dim", `${Math.max(0, 100 - sidebarTextBrightness)}%`);
+    root.style.setProperty("--dream-sidebar-text-lift", `${Math.max(0, sidebarTextBrightness - 100)}%`);
+    root.style.setProperty("--dream-sidebar-font-size",
+      config.sidebarFontSize === "small" ? "12px" :
+      config.sidebarFontSize === "normal" ? "13px" :
+      config.sidebarFontSize === "large" ? "14px" : "inherit");
+    root.style.setProperty("--dream-sidebar-font-weight",
+      config.sidebarFontWeight === "normal" ? "400" :
+      config.sidebarFontWeight === "medium" ? "500" :
+      config.sidebarFontWeight === "semibold" ? "600" :
+      config.sidebarFontWeight === "bold" ? "700" : "inherit");
+    root.style.setProperty("--dream-composer-max-width",
+      config.composerWidth === "compact" ? "680px" :
+      config.composerWidth === "comfortable" ? "820px" :
+      config.composerWidth === "wide" ? "960px" :
+      config.composerWidth === "full" ? "min(1180px, calc(100vw - 88px))" : "");
+    root.style.setProperty("--dream-composer-min-height",
+      config.composerHeight === "compact" ? "2.5rem" :
+      config.composerHeight === "comfortable" ? "3.25rem" :
+      config.composerHeight === "large" ? "4rem" : "2.75rem");
+    root.style.setProperty("--dream-composer-font-size",
+      config.composerFontSize === "small" ? "13px" :
+      config.composerFontSize === "normal" ? "14px" :
+      config.composerFontSize === "large" ? "15px" : "inherit");
   };
 
   const ensure = () => {
@@ -417,38 +524,44 @@
       style.dataset.dreamVersion = "3";
     }
 
-    const homeIcon = document.querySelector('[data-testid="home-icon"]');
-    const roleHome = homeIcon?.closest('[role="main"]') || null;
-    const home = roleHome || (homeIcon ? shellMain : null);
-    let homeContent = homeIcon;
-    while (homeContent && homeContent.parentElement !== home) homeContent = homeContent.parentElement;
-    if (homeContent?.parentElement !== home) homeContent = null;
-    for (const candidate of document.querySelectorAll(".dream-home-content")) {
-      if (candidate !== homeContent) candidate.classList.remove("dream-home-content");
-    }
-    const decorateHome = config.homeMode === "themed";
-    homeContent?.classList.toggle("dream-home-content", decorateHome);
-    const routeMains = [...document.querySelectorAll('[role="main"]')];
-    if (routeMains.length === 0) routeMains.push(shellMain);
-    const activeRouteMains = new Set(routeMains);
-    for (const className of ["dream-home", "dream-task"]) {
-      for (const candidate of document.querySelectorAll(`.${className}`)) {
-        if (!activeRouteMains.has(candidate)) candidate.classList.remove(className);
+    let home = document.querySelector(".dream-home");
+    if (routeDirty || !home?.isConnected) {
+      routeDirty = false;
+      const settingsRoute = Boolean(document.querySelector('nav[aria-label="设置"], nav[aria-label="Settings"]'));
+      const homeIcon = document.querySelector('[data-testid="home-icon"]');
+      const roleHome = homeIcon?.closest('[role="main"]') || null;
+      home = roleHome || (homeIcon ? shellMain : null);
+      let homeContent = homeIcon;
+      while (homeContent && homeContent.parentElement !== home) homeContent = homeContent.parentElement;
+      if (homeContent?.parentElement !== home) homeContent = null;
+      for (const candidate of document.querySelectorAll(".dream-home-content")) {
+        if (candidate !== homeContent) candidate.classList.remove("dream-home-content");
       }
+      const decorateHome = config.homeMode === "themed";
+      homeContent?.classList.toggle("dream-home-content", decorateHome);
+      const routeMains = [...document.querySelectorAll('[role="main"]')];
+      if (routeMains.length === 0) routeMains.push(shellMain);
+      const activeRouteMains = new Set(routeMains);
+      for (const className of ["dream-home", "dream-task"]) {
+        for (const candidate of document.querySelectorAll(`.${className}`)) {
+          if (!activeRouteMains.has(candidate)) candidate.classList.remove(className);
+        }
+      }
+      for (const candidate of routeMains) {
+        candidate.classList.toggle("dream-home", decorateHome && candidate === home);
+        candidate.classList.toggle("dream-task", candidate !== home);
+      }
+      const utilityBars = new Set(home ? home.querySelectorAll('[class*="_homeUtilityBar_"]') : []);
+      for (const candidate of document.querySelectorAll(`.${HOME_UTILITY_CLASS}`)) {
+        if (!utilityBars.has(candidate)) candidate.classList.remove(HOME_UTILITY_CLASS);
+      }
+      for (const candidate of utilityBars) candidate.classList.add(HOME_UTILITY_CLASS);
+      shellMain.classList.toggle("dream-home-shell", Boolean(home));
+      root.classList.toggle("dream-route-home", Boolean(home));
+      root.classList.toggle("dream-route-task", !home);
+      root.classList.toggle("dream-route-settings", settingsRoute);
+      root.classList.toggle("dream-home-utility-present", utilityBars.size > 0);
     }
-    for (const candidate of routeMains) {
-      candidate.classList.toggle("dream-home", decorateHome && candidate === home);
-      candidate.classList.toggle("dream-task", candidate !== home);
-    }
-    const utilityBars = new Set(home ? home.querySelectorAll('[class*="_homeUtilityBar_"]') : []);
-    for (const candidate of document.querySelectorAll(`.${HOME_UTILITY_CLASS}`)) {
-      if (!utilityBars.has(candidate)) candidate.classList.remove(HOME_UTILITY_CLASS);
-    }
-    for (const candidate of utilityBars) candidate.classList.add(HOME_UTILITY_CLASS);
-    shellMain.classList.toggle("dream-home-shell", Boolean(home));
-    root.classList.toggle("dream-route-home", Boolean(home));
-    root.classList.toggle("dream-route-task", !home);
-    root.classList.toggle("dream-home-utility-present", utilityBars.size > 0);
 
     let chrome = document.getElementById(CHROME_ID);
     if (!chrome || chrome.parentElement !== document.body) {
@@ -498,6 +611,34 @@
         replacement.querySelector("svg")?.classList.add("dream-theme-svg");
         replacement.dataset.dreamIcon = iconSignature;
       }
+    };
+    const installComposerActionIcon = (button, iconName, semanticClass = "") => {
+      if (!button || !iconName || !THEME_ICON_SVGS[iconName]) return;
+      for (const source of button.querySelectorAll?.("svg:not(.dream-theme-svg)") || []) {
+        source.classList.add("dream-native-icon-source");
+      }
+      let replacement = button.querySelector?.(":scope > .dream-theme-icon[data-dream-composer-action-icon='true']");
+      if (!replacement) {
+        replacement = document.createElement("span");
+        replacement.setAttribute("aria-hidden", "true");
+        replacement.dataset.dreamComposerActionIcon = "true";
+        button.insertBefore?.(replacement, button.firstChild || null);
+      }
+      for (const extra of button.querySelectorAll?.(":scope > .dream-theme-icon[data-dream-composer-action-icon='true']") || []) {
+        if (extra !== replacement) extra.remove();
+      }
+      const classTokens = ["dream-theme-icon", `dream-theme-icon-${iconName}`];
+      if (iconName === brandIcon) classTokens.push("dream-theme-icon-brand");
+      if (semanticClass && semanticClass !== `dream-theme-icon-${iconName}`) classTokens.push(semanticClass);
+      const expectedClass = classTokens.join(" ");
+      const iconSignature = `${THEME_ICON_VERSION}:${iconName}:composer-action:${semanticClass}`;
+      if (replacement.className !== expectedClass) replacement.className = expectedClass;
+      if (replacement.dataset.dreamIcon !== iconSignature) {
+        replacement.innerHTML = THEME_ICON_SVGS[iconName];
+        replacement.querySelector("svg")?.classList.add("dream-theme-svg");
+        replacement.dataset.dreamIcon = iconSignature;
+      }
+      button.dataset.dreamComposerActionIcon = iconSignature;
     };
 
     const now = Date.now();
@@ -561,11 +702,17 @@
     }
     }
 
+    if (composerDirty) {
+    composerDirty = false;
+    for (const composer of document.querySelectorAll(".composer-surface-chrome")) {
+      composer.closest?.(":is([class*='sticky'], [class*='fixed'], [class*='absolute'], [class*='px-toolbar'], [class*='px-'])")
+        ?.classList.add("dream-composer-shell");
+    }
     for (const button of document.querySelectorAll(".composer-surface-chrome button")) {
       const label = (button.getAttribute("aria-label") || button.textContent || "").trim();
       const navigation = button.getAttribute("data-composer-navigation-target") || "";
       const isComposerAction = !navigation && button.matches("button.size-token-button-composer");
-      const isProcessing = isComposerAction && ["停止", "Stop"].includes(label);
+      const isProcessing = isComposerAction && /^(?:停止|停止生成|取消|Stop|Stop generating|Cancel)$/i.test(label);
       let iconName = "";
       if (navigation === "add-context" || ["添加文件等内容", "Add files and more"].includes(label)) iconName = "add";
       else if (navigation === "permissions") {
@@ -581,7 +728,9 @@
       else if (isComposerAction) iconName = isProcessing ? processingIcon : sendIcon;
       button.classList.toggle("dream-composer-send", isComposerAction && !isProcessing);
       button.classList.toggle("dream-composer-processing", isProcessing);
-      if (iconName) installThemeIcon(button.querySelector("svg:not(.dream-theme-svg)"), iconName, isProcessing ? "dream-theme-icon-processing" : isComposerAction ? "dream-theme-icon-send" : "");
+      if (iconName && isComposerAction) installComposerActionIcon(button, iconName, isProcessing ? "dream-theme-icon-processing" : "dream-theme-icon-send");
+      else if (iconName) installThemeIcon(button.querySelector("svg:not(.dream-theme-svg)"), iconName, "");
+    }
     }
 
     const permissionIconFor = (label) => {
@@ -620,6 +769,8 @@
       source.classList.remove("dream-theme-spinner-source");
       const host = source.tagName?.toLowerCase() === "svg" ? source.parentElement : source;
       host?.classList.remove("dream-theme-spinner");
+      host?.parentElement?.classList.remove("dream-spinner-safe");
+      host?.parentElement?.parentElement?.classList.remove("dream-spinner-safe");
       host?.querySelector?.(":scope > .dream-theme-spinner-mark")?.remove();
     }
     const spinnerCandidates = new Set([
@@ -640,6 +791,8 @@
       if (!host.classList.contains("dream-theme-spinner")) {
         host.classList.add("dream-theme-spinner");
       }
+      host.parentElement?.classList.add("dream-spinner-safe");
+      host.parentElement?.parentElement?.classList.add("dream-spinner-safe");
       let spinnerMark = host.querySelector?.(":scope > .dream-theme-spinner-mark");
       if (!spinnerMark) {
         spinnerMark = document.createElement("span");
@@ -722,6 +875,8 @@
         sidebarReadyAt = Date.now() + 220;
         scheduleSidebarEnsure();
       }
+      if (composerChanged || actionStateChanged) composerDirty = true;
+      if (mainRootChanged || elements.some((node) => node.matches?.("main.main-surface, [role='main'], [class*='_homeUtilityBar_']"))) routeDirty = true;
       if (spinnerChanged) spinnerDirty = true;
       return composerChanged || permissionMenuChanged || actionStateChanged || mainRootChanged || spinnerChanged ||
         target === document.body || target === document.documentElement ||
@@ -761,8 +916,25 @@
   window.addEventListener?.("pointercancel", windowDragEnd, true);
   window.addEventListener?.("blur", windowDragEnd, true);
   const timer = setInterval(() => { spinnerDirty = true; ensure(); }, 30000);
+  const rotateArt = () => {
+    if (artUrls.length < 2) return;
+    currentArtIndex = (currentArtIndex + 1) % artUrls.length;
+    artUrl = artUrls[currentArtIndex];
+    appliedProfileSignature = "";
+    analyzeArt().then((result) => {
+      const state = window[STATE_KEY];
+      if (state?.installToken !== installToken || window.__CODEX_DREAM_SKIN_DISABLED__) return;
+      profile = result;
+      state.profile = result;
+      state.artUrl = artUrl;
+      ensure();
+    });
+  };
+  const rotationTimer = config.rotationEnabled && artUrls.length > 1
+    ? setInterval(rotateArt, config.rotationIntervalMs)
+    : null;
   window[STATE_KEY] = {
-    ensure, cleanup, observer, timer, scheduler, artUrl, profile, config, installToken, version: "1.4.1",
+    ensure, cleanup, observer, timer, rotationTimer, scheduler, artUrl, artUrls, profile, config, installToken, version: "1.4.1",
   };
   ensure();
   analyzeArt().then((result) => {

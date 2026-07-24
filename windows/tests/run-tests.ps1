@@ -547,7 +547,7 @@ try {
     '.dream-home-utility-present .dream-home .composer-surface-chrome',
     '.dream-route-task:is(.dream-task-ambient, .dream-task-banner)',
     '.composer-surface-chrome .dream-theme-icon',
-    'body:has(nav[aria-label="设置"], nav[aria-label="Settings"])',
+    'html.codex-dream-skin.dream-route-settings body',
     'div.main-surface',
     'position: fixed !important',
     '.dream-permission-menu .dream-permission-item .dream-theme-icon-brand',
@@ -570,6 +570,9 @@ try {
   }
   if ($css.Contains(':has(main.main-surface')) {
     throw 'Window-wide route styling still uses a costly relational selector instead of renderer route classes.'
+  }
+  if ($css.Contains('body:has(')) {
+    throw 'Settings route styling should use renderer route classes instead of body:has().'
   }
   $traySource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'scripts\tray-dream-skin.ps1')
   foreach ($requiredTrayAction in @('System.Windows.Forms.NotifyIcon', '暂停皮肤', '更换背景图', '已保存主题', '完全恢复 Codex')) {
@@ -669,7 +672,7 @@ try {
   }
   $managerSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'engine\theme-manager.js')
   foreach ($requiredManagerBehavior in @(
-    'data-settings-panel-slug', 'dream-theme-manager', '还原官方外观',
+    'codex-dream-theme-manager-trigger', 'aria-expanded', '还原官方外观',
     '主题宠物', 'selectPet', '已绑定', '热重载已开启', 'data-manager-close',
     'installBundledTheme', '安装主题', 'dtm-preview', 'data-dtm-theme-preview-key',
     'dtm-tabs', 'data-manager-tab="themes"', 'data-manager-tab="pets"',
@@ -684,7 +687,7 @@ try {
     'getThemePreview', 'themePreviewCache', 'applyThemePreviewImages',
     'getPetPreview', 'petPreviewCache', 'data-dtm-pet-preview-pet',
     'dtm-loading-card', 'showSequence', 'dtm-file-actions', 'dtm-close-hit', 'onPanelKeydown',
-    'closeButtonFromPoint', 'onPanelPointerMove',
+    'closeButton', 'data-dtm-close', 'inset:0', 'showing ? hide() : show()',
     '执行中动图', '加载转圈',
     'data-theme-pet-edit', 'data-theme-pet-pick', 'updateThemePet'
   )) {
@@ -694,6 +697,16 @@ try {
   }
   if ($managerSource.Contains('宠物：')) {
     throw 'Theme cards must show the bound pet image directly instead of a pet-name text chip.'
+  }
+  foreach ($removedCloseWorkaround in @('closeButtonFromPoint', 'onPanelPointerMove', 'onPanelPointerLeave', 'dtm-close-hover')) {
+    if ($managerSource.Contains($removedCloseWorkaround)) {
+      throw "Theme manager restored fragile close-button pointer workaround: $removedCloseWorkaround"
+    }
+  }
+  foreach ($removedSettingsEntry in @('appearance.cloneNode', 'button.dataset.settingsPanelSlug = NAV_SLUG', 'insertAdjacentElement("afterend", button)')) {
+    if ($managerSource.Contains($removedSettingsEntry)) {
+      throw "Theme manager restored the settings-page navigation entry: $removedSettingsEntry"
+    }
   }
   foreach ($removedManagerBehavior in @('addLibrary', 'addRepository', 'getCatalog', 'installLibraryTheme', 'data-library-add', 'data-repository-add', 'GitHub 仓库安装')) {
     if ($managerSource.Contains($removedManagerBehavior)) {
@@ -749,7 +762,9 @@ try {
     }
   }
   if (-not $css.Contains('dream-theme-orbit') -or
-    -not $css.Contains('top: -1px') -or
+    -not $css.Contains('width: 28px') -or
+    -not $css.Contains('overflow: visible !important') -or
+    -not $css.Contains('top: 1px') -or
     -not $css.Contains('.dream-theme-spinner-source:not(.dream-theme-spinner)') -or
     -not $css.Contains('.dream-theme-spinner-source.dream-theme-spinner > :not(.dream-theme-spinner-mark)') -or
     -not $rendererSource.Contains('document.querySelectorAll(SPINNER_SELECTOR)') -or
@@ -761,6 +776,19 @@ try {
     $remielCss.Contains('.dream-remiel-spinner') -or
     $remielCss.Contains('body:has(nav[aria-label="设置"], nav[aria-label="Settings"])')) {
     throw 'The Remiel package must contain only its palette/brand overrides, not copied framework behavior.'
+  }
+  $managerSource = Read-DreamSkinUtf8File -Path (Join-Path $Root 'src\theme-manager.ts')
+  $imageSaveIndex = $managerSource.IndexOf('else if (target.dataset.themeImagesSave)')
+  $imageCloseIndex = $managerSource.IndexOf('imageSettingsTheme = null;', $imageSaveIndex)
+  $imageUpdateIndex = $managerSource.IndexOf('call("updateThemeImages"', $imageSaveIndex)
+  if ($imageSaveIndex -lt 0 -or $imageCloseIndex -lt $imageSaveIndex -or $imageCloseIndex -gt $imageUpdateIndex) {
+    throw 'Theme image settings must close their modal before an active-theme hot reload starts.'
+  }
+  if ($css.Contains('filter: brightness(var(--dream-sidebar-text-brightness') -or
+    -not $css.Contains('--dream-sidebar-text-adjusted: color-mix') -or
+    -not $rendererSource.Contains('--dream-sidebar-text-dim') -or
+    -not $rendererSource.Contains('--dream-sidebar-text-lift')) {
+    throw 'Shared sidebar contrast still uses a compounding filter instead of non-stacking color adjustment.'
   }
   $bundledPet = Join-Path (Split-Path -Parent $Root) 'pets\remiel-switch'
   $bundledPetManifestPath = Join-Path $bundledPet 'pet.json'

@@ -1,10 +1,12 @@
-/* Dream Skin shared framework styles. Theme packages append variable overrides. */
+﻿/* Dream Skin shared framework styles. Theme packages append variable overrides. */
 :root.codex-dream-skin {
   color-scheme: light;
   --dream-accent: oklch(0.66 0.15 18);
   --dream-accent-ink: oklch(0.98 0.006 20);
   --dream-art-fit: cover;
   --dream-art-position: 72% 45%;
+  --dream-art-size: cover;
+  --dream-art-repeat: no-repeat;
   --dream-brand-suffix: "";
   --dream-detail: #d9b85f;
   --dream-send-base: #17395b;
@@ -41,6 +43,14 @@
   --dream-home-copy: color-mix(in oklab, var(--dream-text) 92%, #000);
   --dream-home-copy-shadow: 0 1px 3px color-mix(in oklab, white 90%, transparent),
     0 0 14px color-mix(in oklab, white 62%, transparent);
+  --dream-sidebar-text-dim: 0%;
+  --dream-sidebar-text-lift: 0%;
+  --dream-sidebar-text-adjusted: color-mix(in srgb,
+    color-mix(in srgb, var(--dream-sidebar-text, var(--dream-text)), black var(--dream-sidebar-text-dim)),
+    white var(--dream-sidebar-text-lift));
+  --dream-sidebar-icon-adjusted: color-mix(in srgb,
+    color-mix(in srgb, var(--dream-sidebar-icon, var(--dream-text)), black var(--dream-sidebar-text-dim)),
+    white var(--dream-sidebar-text-lift));
 }
 
 :root.codex-dream-skin.dream-theme-dark {
@@ -86,8 +96,11 @@ html.codex-dream-skin body {
 }
 
 html.codex-dream-skin aside.app-shell-left-panel {
-  color: var(--dream-text) !important;
+  color: var(--dream-sidebar-text-adjusted) !important;
   background: var(--dream-sidebar) !important;
+  font-family: var(--dream-sidebar-font-family, inherit) !important;
+  font-size: var(--dream-sidebar-font-size, inherit) !important;
+  font-weight: var(--dream-sidebar-font-weight, inherit) !important;
   border-color: var(--dream-line-soft) !important;
   box-shadow: inset -1px 0 var(--dream-line-soft) !important;
   backdrop-filter: none !important;
@@ -98,7 +111,10 @@ html.codex-dream-skin aside.app-shell-left-panel nav {
 }
 
 html.codex-dream-skin aside.app-shell-left-panel button {
-  color: var(--dream-text) !important;
+  color: var(--dream-sidebar-text-adjusted) !important;
+  font-family: var(--dream-sidebar-font-family, inherit) !important;
+  font-size: var(--dream-sidebar-font-size, inherit) !important;
+  font-weight: var(--dream-sidebar-font-weight, inherit) !important;
   transition: background-color 180ms cubic-bezier(.22, 1, .36, 1), color 180ms cubic-bezier(.22, 1, .36, 1) !important;
 }
 
@@ -108,14 +124,18 @@ html.codex-dream-skin aside.app-shell-left-panel button:hover {
 
 html.codex-dream-skin aside.app-shell-left-panel [class~="bg-token-list-hover-background"],
 html.codex-dream-skin aside.app-shell-left-panel [aria-current="page"] {
-  color: var(--dream-text) !important;
+  color: var(--dream-sidebar-text-adjusted) !important;
   background: var(--dream-accent-hover) !important;
   box-shadow: inset 0 0 0 1px var(--dream-line-soft) !important;
 }
 
-html.codex-dream-skin aside.app-shell-left-panel svg,
+html.codex-dream-skin aside.app-shell-left-panel svg {
+  color: var(--dream-sidebar-icon-adjusted) !important;
+}
+
 html.codex-dream-skin aside.app-shell-left-panel [class*="text-token"] {
-  color: currentColor;
+  color: var(--dream-sidebar-text-adjusted) !important;
+  filter: none !important;
 }
 
 html.codex-dream-skin main.main-surface {
@@ -139,7 +159,7 @@ html.codex-dream-skin main.main-surface > header.app-header-tint {
 
 /* Settings use a div.main-surface instead of the app's normal main element.
    Carry the active theme through the whole settings shell and its controls. */
-html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Settings"]) {
+html.codex-dream-skin.dream-route-settings body {
   --color-token-main-surface-primary: color-mix(in oklab, var(--dream-surface) 86%, transparent);
   --color-token-foreground: var(--dream-text);
   --color-token-icon-foreground: var(--dream-text);
@@ -154,11 +174,11 @@ html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Setting
   background-color: var(--dream-canvas) !important;
   background-image: var(--dream-art) !important;
   background-position: var(--dream-art-position) !important;
-  background-repeat: no-repeat !important;
+  background-repeat: var(--dream-art-repeat) !important;
   background-size: var(--dream-art-fit) !important;
 }
 
-html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Settings"])
+html.codex-dream-skin.dream-route-settings body
   aside.app-shell-left-panel {
   background: linear-gradient(90deg,
     var(--dream-task-immersive-sidebar),
@@ -166,7 +186,7 @@ html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Setting
   border-color: var(--dream-line-soft) !important;
 }
 
-html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Settings"])
+html.codex-dream-skin.dream-route-settings body
   div.main-surface {
   color: var(--dream-text) !important;
   background: color-mix(in oklab, var(--dream-surface) 86%, transparent) !important;
@@ -178,13 +198,13 @@ html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Setting
   backdrop-filter: blur(18px) saturate(112%) !important;
 }
 
-html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Settings"])
+html.codex-dream-skin.dream-route-settings body
   div.main-surface :is(.rounded-2xl, .rounded-xl).border-token-border {
   background-color: color-mix(in oklab, var(--dream-surface-raised) 90%, transparent) !important;
   border-color: var(--dream-line-soft) !important;
 }
 
-html.codex-dream-skin body:has(nav[aria-label="设置"], nav[aria-label="Settings"])
+html.codex-dream-skin.dream-route-settings body
   div.main-surface :is(input, textarea, select, [role="combobox"]) {
   color: var(--dream-text) !important;
   border-color: var(--dream-line) !important;
@@ -217,7 +237,7 @@ html.codex-dream-skin .dream-task::before {
   pointer-events: none;
   opacity: var(--dream-ambient-opacity);
   background-image: var(--dream-art);
-  background-repeat: no-repeat;
+  background-repeat: var(--dream-art-repeat);
   background-position: var(--dream-art-position);
   background-size: var(--dream-art-fit);
   contain: strict;
@@ -225,7 +245,7 @@ html.codex-dream-skin .dream-task::before {
 
 html.codex-dream-skin.dream-art-wide .dream-task::before {
   background-position: center top;
-  background-size: 100% auto;
+  background-size: var(--dream-art-fit);
 }
 
 html.codex-dream-skin.dream-art-wide:not(.dream-task-banner) .dream-task::before {
@@ -286,14 +306,14 @@ html.codex-dream-skin .dream-home {
   border: 1px solid var(--dream-line) !important;
   border-radius: 20px !important;
   background-image: var(--dream-art) !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
+  background-repeat: var(--dream-art-repeat) !important;
+  background-size: var(--dream-art-fit) !important;
   background-position: var(--dream-art-position) !important;
   box-shadow: var(--dream-shadow) !important;
 }
 
 html.codex-dream-skin.dream-art-wide .dream-home > .dream-home-content > div:first-child > div:first-child {
-  background-size: cover !important;
+  background-size: var(--dream-art-fit) !important;
 }
 
 .dream-home > .dream-home-content > div:first-child > div:first-child::before {
@@ -442,8 +462,20 @@ html.codex-dream-skin .composer-surface-chrome {
   border: 1px solid var(--dream-line) !important;
   border-radius: 18px !important;
   background: color-mix(in oklab, var(--dream-surface-raised) 95%, transparent) !important;
-  box-shadow: 0 12px 34px color-mix(in oklab, var(--dream-accent) 8%, transparent) !important;
+  box-shadow: var(--dream-composer-shadow, 0 12px 34px color-mix(in oklab, var(--dream-accent) 8%, transparent)) !important;
   backdrop-filter: none !important;
+}
+
+html.codex-dream-skin .dream-composer-shell {
+  max-width: none !important;
+}
+
+html.codex-dream-skin:is(.dream-composer-compact, .dream-composer-comfortable, .dream-composer-wide, .dream-composer-full)
+  .dream-composer-shell {
+  width: min(100%, var(--dream-composer-max-width)) !important;
+  max-width: var(--dream-composer-max-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 html.codex-dream-skin .ProseMirror {
@@ -471,7 +503,7 @@ html.codex-dream-skin.dream-art-wide.dream-route-task:is(.dream-task-ambient, .d
   background-image: var(--dream-art) !important;
   background-position: var(--dream-art-position) !important;
   background-size: var(--dream-art-fit) !important;
-  background-repeat: no-repeat !important;
+  background-repeat: var(--dream-art-repeat) !important;
   background-attachment: scroll !important;
 }
 
@@ -493,6 +525,35 @@ html.codex-dream-skin.dream-art-wide.dream-route-task:is(.dream-task-ambient, .d
   background: linear-gradient(90deg,
     var(--dream-task-immersive-sidebar),
     var(--dream-task-immersive-edge)) !important;
+}
+
+html.codex-dream-skin.dream-sidebar-transparent.dream-route-task:is(.dream-task-ambient, .dream-task-banner)
+  aside.app-shell-left-panel {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+html.codex-dream-skin.dream-sidebar-tint.dream-route-task:is(.dream-task-ambient, .dream-task-banner)
+  aside.app-shell-left-panel {
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--dream-sidebar) 42%, transparent),
+    color-mix(in oklab, var(--dream-surface) 8%, transparent)) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+html.codex-dream-skin.dream-sidebar-solid.dream-route-task:is(.dream-task-ambient, .dream-task-banner)
+  aside.app-shell-left-panel {
+  background: color-mix(in oklab, var(--dream-sidebar) 96%, transparent) !important;
+  border: 0 !important;
+  box-shadow: inset -1px 0 var(--dream-line-soft) !important;
+  backdrop-filter: none !important;
 }
 
 html.codex-dream-skin.dream-art-wide.dream-route-home
@@ -537,6 +598,18 @@ html.codex-dream-skin.dream-art-wide main.main-surface > header.app-header-tint 
     0 0 8px color-mix(in oklab, var(--dream-canvas) 58%, transparent) !important;
 }
 
+html.codex-dream-skin.dream-art-wide
+  :is(header.app-header-tint, [class*="app-header"], [class*="bg-token-main-surface-primary"]):is(
+    [class*="sticky"],
+    [class*="fixed"],
+    [class*="top-0"]
+  ) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
 html.codex-dream-skin.dream-art-wide main.main-surface > header.app-header-tint svg {
   filter: drop-shadow(0 1px 2px color-mix(in oklab, var(--dream-canvas) 72%, transparent));
 }
@@ -572,20 +645,15 @@ html.codex-dream-skin.dream-art-wide .composer-surface-chrome {
   color: var(--dream-text) !important;
   background: var(--dream-immersive-composer) !important;
   border: 1px solid var(--dream-line) !important;
-  box-shadow: 0 16px 42px color-mix(in oklab, var(--dream-canvas) 42%, transparent),
+  box-shadow: var(--dream-composer-shadow, 0 16px 42px color-mix(in oklab, var(--dream-canvas) 42%, transparent)),
     inset 0 1px color-mix(in oklab, white 5%, transparent) !important;
   backdrop-filter: none !important;
   isolation: isolate !important;
 }
 
 .dream-home .group\/home-suggestions button::after {
-  content: "✦";
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  color: var(--dream-accent);
-  font-size: 11px;
-  opacity: .72;
+  content: none !important;
+  display: none !important;
 }
 
 html.codex-dream-skin aside.app-shell-left-panel .dream-brand-button {
@@ -611,7 +679,7 @@ html.codex-dream-skin aside.app-shell-left-panel .dream-nav-primary:hover {
 }
 
 html.codex-dream-skin aside.app-shell-left-panel .dream-section-heading {
-  color: var(--dream-text-muted) !important;
+  color: color-mix(in oklab, var(--dream-sidebar-text, var(--dream-text-muted)) 72%, transparent) !important;
   font-size: 12px !important;
   letter-spacing: .14em;
 }
@@ -667,6 +735,14 @@ html.codex-dream-skin aside.app-shell-left-panel .dream-theme-brand-mark {
 
 html.codex-dream-skin .dream-theme-spinner {
   position: relative !important;
+  contain: none !important;
+  clip-path: none !important;
+  overflow: visible !important;
+}
+
+html.codex-dream-skin .dream-spinner-safe {
+  contain: none !important;
+  clip-path: none !important;
   overflow: visible !important;
 }
 
@@ -683,9 +759,11 @@ html.codex-dream-skin .dream-theme-spinner-mark {
   z-index: 2;
   left: 50%;
   top: 50%;
-  width: 24px;
-  height: 24px;
-  margin: -12px 0 0 -12px;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 999px;
+  overflow: visible !important;
   pointer-events: none;
   animation: dream-theme-orbit 1080ms linear infinite;
   transform-origin: 50% 50%;
@@ -696,8 +774,8 @@ html.codex-dream-skin .dream-theme-spinner-mark::before {
   content: "";
   position: absolute;
   z-index: 2;
-  right: 1px;
-  top: 3px;
+  right: 3px;
+  top: 5px;
   width: 4px;
   height: 4px;
   border-radius: 50%;
@@ -708,7 +786,7 @@ html.codex-dream-skin .dream-theme-spinner-mark::before {
 html.codex-dream-skin .dream-theme-spinner-mark::after {
   content: "";
   position: absolute;
-  inset: 5px;
+  inset: 7px;
   border: 1px solid color-mix(in srgb, var(--dream-accent) 42%, transparent);
   border-radius: 50%;
 }
@@ -716,9 +794,9 @@ html.codex-dream-skin .dream-theme-spinner-mark::after {
 html.codex-dream-skin .dream-theme-spinner-mark > svg {
   position: absolute;
   left: 50%;
-  top: -1px;
-  width: 11px;
-  height: 11px;
+  top: 1px;
+  width: 9px;
+  height: 9px;
   transform: translateX(-50%) rotate(18deg);
 }
 
@@ -732,6 +810,13 @@ html.codex-dream-skin aside.app-shell-left-panel .bg-token-list-hover-background
   background: color-mix(in oklab, var(--dream-accent) 18%, var(--dream-sidebar)) !important;
   box-shadow: inset 2px 0 var(--dream-accent),
     0 6px 18px color-mix(in oklab, var(--dream-canvas) 22%, transparent) !important;
+}
+
+html.codex-dream-skin.dream-route-task:is(.dream-task-ambient, .dream-task-banner)
+  aside.app-shell-left-panel .bg-token-list-hover-background {
+  background: color-mix(in oklab, var(--dream-accent) 14%, transparent) !important;
+  box-shadow: inset 2px 0 var(--dream-accent),
+    0 4px 12px color-mix(in oklab, var(--dream-canvas) 10%, transparent) !important;
 }
 
 #codex-dream-skin-chrome {
@@ -808,8 +893,13 @@ html.codex-dream-skin.dream-art-wide body main.main-surface .composer-surface-ch
   border-color: var(--dream-line) !important;
 }
 
-html.codex-dream-skin.dream-art-wide .composer-surface-chrome::before {
+html.codex-dream-skin.dream-art-wide .composer-surface-chrome::before,
+html.codex-dream-skin.dream-art-wide .composer-surface-chrome::after {
   content: none !important;
+  display: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
 /* Current Codex builds overlap the home project picker with the composer.
@@ -996,14 +1086,6 @@ html.codex-dream-skin :is(
   box-shadow: var(--dream-floating-shadow) !important;
 }
 
-html.codex-dream-skin :is([class*="shadow-"], [class*="drop-shadow"]):has(> :is(.text-green-500, .text-red-500, .text-emerald-500, .text-destructive)) {
-  color: var(--dream-text) !important;
-  border: 1px solid var(--dream-floating-line) !important;
-  background: var(--dream-floating-surface) !important;
-  box-shadow: var(--dream-floating-shadow) !important;
-  backdrop-filter: blur(18px) !important;
-}
-
 html.codex-dream-skin :is(
   .bg-token-dropdown-background,
   [class*="bg-token-dropdown-background"],
@@ -1147,9 +1229,11 @@ html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing 
 html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing .dream-theme-icon-brand,
 html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing .dream-theme-icon-processing {
   position: relative;
-  width: 24px;
-  height: 24px;
-  flex-basis: 24px;
+  width: 28px;
+  height: 28px;
+  flex-basis: 28px;
+  margin: -4px;
+  overflow: visible !important;
   animation: dream-theme-orbit 1080ms linear infinite;
   transform-origin: 50% 50%;
   will-change: transform;
@@ -1159,7 +1243,7 @@ html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing 
 html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing .dream-theme-icon-processing::after {
   content: "";
   position: absolute;
-  inset: 5px;
+  inset: 7px;
   border: 1px solid color-mix(in srgb, var(--dream-accent) 45%, transparent);
   border-radius: 50%;
 }
@@ -1168,9 +1252,9 @@ html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing 
 html.codex-dream-skin .composer-surface-chrome button.dream-composer-processing .dream-theme-icon-processing > svg {
   position: absolute;
   left: 50%;
-  top: -1px;
-  width: 11px;
-  height: 11px;
+  top: 1px;
+  width: 9px;
+  height: 9px;
   transform: translateX(-50%) rotate(18deg);
 }
 
@@ -1192,9 +1276,10 @@ html.codex-dream-skin.dream-home-utility-present body main.main-surface.dream-ho
 /* Keep the new-task editor legible over high-detail artwork. Codex uses
    ProseMirror's empty paragraph pseudo-element for the placeholder. */
 html.codex-dream-skin .composer-surface-chrome .ProseMirror {
-  min-height: 2.75rem !important;
+  min-height: var(--dream-composer-min-height, 2.75rem) !important;
   line-height: 1.45 !important;
   color: var(--dream-text) !important;
+  font-size: var(--dream-composer-font-size, inherit) !important;
 }
 
 html.codex-dream-skin .composer-surface-chrome .ProseMirror p.is-editor-empty:first-child::before,
@@ -1206,19 +1291,17 @@ html.codex-dream-skin .composer-surface-chrome .ProseMirror:empty::before {
 /* Plugins, scheduled tasks and search routes ship opaque sticky wrappers.
    Clear only full-window or sticky route chrome, leaving functional cards and
    their hover states intact. */
-html.codex-dream-skin.dream-art-wide:is(.dream-task-ambient, .dream-task-banner)
-  main.main-surface:not(.dream-home-shell) div.sticky:has(input[type="text"]),
-html.codex-dream-skin.dream-art-wide:is(.dream-task-ambient, .dream-task-banner)
-  main.main-surface:not(.dream-home-shell) div.sticky:has(input[type="text"])::after {
+html.codex-dream-skin.dream-route-task:is(.dream-task-ambient, .dream-task-banner)
+  main.main-surface:not(.dream-home-shell) .dream-composer-shell {
   background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
-html.codex-dream-skin.dream-art-wide:is(.dream-task-ambient, .dream-task-banner)
-  main.main-surface:not(.dream-home-shell) div.no-drag:has(> input[type="text"]) {
-  background: var(--dream-immersive-composer) !important;
-  border: 0 !important;
-  box-shadow: inset 0 0 0 1px var(--dream-immersive-line) !important;
-  backdrop-filter: none !important;
+html.codex-dream-skin.dream-route-task:is(.dream-task-ambient, .dream-task-banner)
+  main.main-surface:not(.dream-home-shell) .composer-surface-chrome {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--dream-line) 68%, transparent) !important;
 }
 
 html.codex-dream-skin.dream-art-wide:is(.dream-task-ambient, .dream-task-banner)
@@ -1367,6 +1450,27 @@ html.codex-dream-skin.dream-art-wide main.main-surface .app-shell-main-content-t
 html.codex-dream-skin.dream-art-wide main.main-surface
   .thread-scroll-container .bg-gradient-to-t.from-token-main-surface-primary {
   background: transparent !important;
+}
+
+html.codex-dream-skin.dream-art-wide main.main-surface
+  .thread-scroll-container :is([class*="bg-gradient-to-t"], [class*="bg-gradient-to-b"]):is(
+    [class*="from-token-main-surface-primary"],
+    [class*="from-token-main-surface-secondary"],
+    [class*="to-token-main-surface-primary"],
+    [class*="to-token-main-surface-secondary"]
+  ) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html.codex-dream-skin.dream-art-wide main.main-surface .dream-composer-shell::before,
+html.codex-dream-skin.dream-art-wide main.main-surface .dream-composer-shell::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
 /* Final right-panel pass. These selectors intentionally live after the generic

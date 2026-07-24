@@ -1,11 +1,12 @@
 "use strict";
 (() => {
     const KEY = "__CODEX_DREAM_THEME_MANAGER__";
-    const VERSION = "1.9.1";
+    const VERSION = "1.9.4";
     const BINDING = "__codexDreamThemeControl";
     const RESPONSE = "__codexDreamThemeResponse";
     const STYLE_ID = "codex-dream-theme-manager-style";
     const PANEL_ID = "codex-dream-theme-manager-panel";
+    const TRIGGER_ID = "codex-dream-theme-manager-trigger";
     const NAV_SLUG = "dream-theme-manager";
     const prior = window[KEY];
     if (prior?.version === VERSION && prior?.ensure) {
@@ -15,9 +16,15 @@
     prior?.cleanup?.();
     const bird = `<svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M11.7 10.8C8.5 9.8 5.1 6.6 2.3 1.8c.1 4.8 2.4 8.8 7.2 11.2" fill="#55c6eb" stroke="#d9b85f" stroke-width=".9"/><path d="M12.1 9.9c1.2-4 3.6-7 7.1-8.7.1 4.3-1.6 7.8-5.2 10.4" fill="#276ba9" stroke="#d9b85f" stroke-width=".9"/><path d="M9.2 12.3c2.1-2.4 4.5-3.3 7.1-2.6l2.7-1.2 2.7 1.1-2.9 1.1c-1.2 2.7-3.8 4-7.5 3.7-1.6-.1-2.3-1.1-2.1-2.1Z" fill="#f5fdff" stroke="#2c78ae" stroke-width=".85"/><circle cx="18.2" cy="9.7" r=".55" fill="#143d72"/><path d="M11.8 14.1C9.6 16 7.6 18.8 5.9 22.4M13.1 14.2c1.6 2.8 4 5.2 7.1 7.2" fill="none" stroke="#d9b85f" stroke-width="1.05" stroke-linecap="round"/></svg>`;
     const palette = `<svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5A9.5 9.5 0 0 0 2.5 12c0 5.2 4.1 9.5 9.2 9.5 1.7 0 2.6-1 2.6-2.1 0-.8-.4-1.3-.4-2 0-1.1.9-2 2-2h1.5c2.5 0 4.1-1.8 4.1-4.1C21.5 6.4 17.2 2.5 12 2.5Z" fill="#143552" stroke="#d9b85f"/><circle cx="8" cy="8" r="1.4" fill="#6edaf2"/><circle cx="12.6" cy="6.5" r="1.4" fill="#f5fdff"/><circle cx="16.7" cy="9.1" r="1.4" fill="#5e86d8"/><circle cx="7" cy="13" r="1.4" fill="#d9b85f"/></svg>`;
+    const gear = `<svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M9.6 3.2h4.8l.5 2.2c.7.2 1.3.5 1.9.8l2-1.2 3.4 3.4-1.2 2c.3.6.6 1.2.8 1.9l2.2.5v4.8l-2.2.5c-.2.7-.5 1.3-.8 1.9l1.2 2-3.4 3.4-2-1.2c-.6.3-1.2.6-1.9.8l-.5 2.2H9.6l-.5-2.2c-.7-.2-1.3-.5-1.9-.8l-2 1.2-3.4-3.4 1.2-2c-.3-.6-.6-1.2-.8-1.9L0 17.6v-4.8l2.2-.5c.2-.7.5-1.3.8-1.9l-1.2-2 3.4-3.4 2 1.2c.6-.3 1.2-.6 1.9-.8l.5-2.2Z" fill="currentColor" opacity=".22"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 1.7v3.1M12 19.2v3.1M1.7 12h3.1M19.2 12h3.1M4.7 4.7l2.2 2.2M17.1 17.1l2.2 2.2M19.3 4.7l-2.2 2.2M6.9 17.1l-2.2 2.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+    const closeSvg = `<svg class="dtm-close-icon" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M6.2 6.2 12 12m5.8 5.8L12 12m0 0 5.8-5.8M12 12l-5.8 5.8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>`;
     const css = `
-    #${PANEL_ID}{--dream-manager-accent:var(--dream-accent,#6edaf2);--dtm-surface:var(--dream-surface,var(--main-surface-primary,#0d151f));--dtm-raised:var(--dream-surface-raised,var(--main-surface-secondary,#13212c));--dtm-text:var(--dream-text,var(--text-primary,#edf7fb));--dtm-muted:var(--dream-text-muted,var(--text-secondary,#9bb0bc));--dtm-line:var(--dream-line,var(--border-light,#263642));position:fixed;z-index:29;overflow:auto;background:color-mix(in oklab,var(--dtm-surface) 94%,transparent);color:var(--dtm-text);padding:28px 34px 48px;box-sizing:border-box;font-family:inherit;backdrop-filter:blur(18px)}
-    #${PANEL_ID} *{box-sizing:border-box} #${PANEL_ID} .dtm-wrap{max-width:1040px;margin:0 auto}
+    #${TRIGGER_ID}{position:fixed;right:116px;top:7px;z-index:10000;display:grid;place-items:center;width:28px;height:28px;margin:0;padding:0;border:1px solid color-mix(in srgb,var(--dream-accent,#6edaf2) 34%,transparent);border-radius:8px;background:color-mix(in oklab,var(--dream-surface-raised,#13212c) 58%,transparent);color:var(--dream-text,#edf7fb);box-shadow:0 8px 22px #0006,inset 0 0 0 1px #ffffff12;backdrop-filter:blur(10px);cursor:pointer;pointer-events:auto!important;-webkit-app-region:no-drag}
+    #${TRIGGER_ID}:hover,#${TRIGGER_ID}[aria-expanded="true"]{border-color:var(--dream-accent,#6edaf2);background:color-mix(in srgb,var(--dream-accent,#6edaf2) 18%,var(--dream-surface-raised,#13212c));box-shadow:0 0 0 3px color-mix(in srgb,var(--dream-accent,#6edaf2) 12%,transparent),0 10px 26px #0008}
+    #${TRIGGER_ID} svg{display:block;width:17px;height:17px}
+    #${PANEL_ID}{--dream-manager-accent:var(--dream-accent,#6edaf2);--dtm-surface:var(--dream-surface,var(--main-surface-primary,#0d151f));--dtm-raised:var(--dream-surface-raised,var(--main-surface-secondary,#13212c));--dtm-text:var(--dream-text,var(--text-primary,#edf7fb));--dtm-muted:var(--dream-text-muted,var(--text-secondary,#9bb0bc));--dtm-line:var(--dream-line,var(--border-light,#263642));position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-start;justify-content:center;overflow:auto;background:#02070d99;color:var(--dtm-text);padding:58px 24px 28px;box-sizing:border-box;font-family:inherit;backdrop-filter:blur(10px)}
+    #${PANEL_ID}[hidden]{display:none!important}
+    #${PANEL_ID} *{box-sizing:border-box} #${PANEL_ID} .dtm-wrap{width:min(1080px,calc(100vw - 48px));max-height:calc(100vh - 86px);overflow:auto;margin:0 auto;padding:28px 34px 42px;border:1px solid var(--dtm-line);border-radius:20px;background:color-mix(in oklab,var(--dtm-surface) 96%,transparent);box-shadow:0 24px 90px #000c;backdrop-filter:blur(18px)}
     #${PANEL_ID} .dtm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:24px}
     #${PANEL_ID} h1{font-size:26px;line-height:1.2;margin:0 0 8px;font-weight:650} #${PANEL_ID} h2{font-size:17px;margin:0 0 12px}
     #${PANEL_ID} p{margin:0;color:var(--dtm-muted);font-size:13px;line-height:1.55}
@@ -34,6 +41,9 @@
     #${PANEL_ID} .dtm-create-card .dtm-preview{background:linear-gradient(135deg,#10263d,#1b5264 58%,#13202d)}
     #${PANEL_ID} .dtm-preview{height:122px;background:linear-gradient(135deg,#10263d,#173957 55%,#0c1828);position:relative;overflow:hidden}
     #${PANEL_ID} .dtm-preview img{width:100%;height:100%;display:block;object-fit:cover} #${PANEL_ID} .dtm-preview>svg{position:absolute;width:54px;height:54px;left:50%;top:50%;transform:translate(-50%,-50%)}
+    #${PANEL_ID} .dtm-card-gear{position:absolute;right:10px;top:10px;z-index:3;display:grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 52%,transparent);border-radius:999px;color:var(--dtm-text);background:color-mix(in oklab,var(--dtm-surface) 70%,transparent);box-shadow:0 8px 22px #0008, inset 0 0 0 1px #ffffff12;backdrop-filter:blur(10px)}
+    #${PANEL_ID} .dtm-card-gear svg{width:18px;height:18px;display:block}
+    #${PANEL_ID} .dtm-card-gear:hover{color:#f5fdff;border-color:var(--dream-manager-accent,#6edaf2);background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 24%,var(--dtm-surface))}
     #${PANEL_ID} .dtm-pet-sprite{position:absolute;left:50%;top:50%;width:76px;height:94px;transform:translate(-50%,-50%);background-image:var(--dtm-pet-image);background-repeat:no-repeat;background-position:center;background-size:contain;filter:drop-shadow(0 10px 18px #0008)}
     #${PANEL_ID} .dtm-bound-pet{position:absolute;right:14px;bottom:9px;width:52px;height:64px;padding:0;border:0;border-radius:0;background-color:transparent;background-image:var(--dtm-pet-image);background-repeat:no-repeat;background-position:center;background-size:contain;filter:drop-shadow(0 8px 12px #000b) drop-shadow(0 0 8px color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 28%,transparent))}
     #${PANEL_ID} .dtm-bound-pet::after{content:"";position:absolute;left:18%;right:18%;bottom:5px;height:9px;border-radius:50%;background:#0008;filter:blur(5px);z-index:-1}
@@ -73,6 +83,11 @@
     #${PANEL_ID} .dtm-color-picker{position:relative;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px;border:1px solid var(--dtm-line);border-radius:10px;background:color-mix(in oklab,var(--dtm-raised) 92%,transparent);color:var(--dtm-text);font-size:12px;overflow:hidden}
     #${PANEL_ID} .dtm-color-picker input[type="color"]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
     #${PANEL_ID} .dtm-color-picker-dot{width:14px;height:14px;border-radius:50%;background:var(--dtm-current-color);box-shadow:inset 0 0 0 1px #ffffff55}
+    #${PANEL_ID} .dtm-color-inline-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+    #${PANEL_ID} .dtm-color-picker-compact{height:36px;white-space:nowrap}
+    #${PANEL_ID} .dtm-range-row{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:10px;align-items:center;min-height:36px}
+    #${PANEL_ID} .dtm-range-row output{font-size:12px;color:var(--dtm-text);text-align:right}
+    #${PANEL_ID} input[type="range"]{height:28px;padding:0;background:transparent;accent-color:var(--dream-manager-accent,#6edaf2)}
     #${PANEL_ID} input[type="color"]{width:40px;height:30px;padding:2px}
     #${PANEL_ID} .dtm-advanced-color{font-size:11px;color:var(--dtm-muted)}
     #${PANEL_ID} .dtm-advanced-color summary{cursor:pointer;margin-bottom:6px}
@@ -85,10 +100,10 @@
     #${PANEL_ID} .dtm-dialog-head>div:first-child{min-width:0;flex:1;pointer-events:auto}
     #${PANEL_ID} .dtm-dialog-head h2{margin:0 0 6px}
     #${PANEL_ID} .dtm-dialog-close{width:32px;height:32px;padding:0;font-size:19px;line-height:1}
-    #${PANEL_ID} .dtm-close-hit{appearance:none;position:relative;display:block;flex:0 0 48px;width:48px;height:48px;min-width:48px;min-height:48px;margin:0;padding:0;border:1px solid var(--dtm-line);border-radius:15px;background:color-mix(in oklab,var(--dtm-raised) 90%,transparent);color:var(--dtm-text);font-size:0;line-height:0;cursor:pointer;user-select:none;touch-action:manipulation;z-index:20;isolation:isolate;overflow:hidden;pointer-events:auto!important}
-    #${PANEL_ID} .dtm-close-hit::before{content:"";position:absolute;inset:0;border-radius:inherit;background:transparent;pointer-events:none;z-index:0}
-    #${PANEL_ID} .dtm-close-hit::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%);background:linear-gradient(45deg,transparent calc(50% - 1.2px),currentColor calc(50% - 1.2px),currentColor calc(50% + 1.2px),transparent calc(50% + 1.2px)),linear-gradient(-45deg,transparent calc(50% - 1.2px),currentColor calc(50% - 1.2px),currentColor calc(50% + 1.2px),transparent calc(50% + 1.2px));pointer-events:none;z-index:1}
-    #${PANEL_ID} .dtm-close-hit:hover,#${PANEL_ID} .dtm-close-hit.dtm-close-hover{border-color:var(--dream-manager-accent,#6edaf2);background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 16%,var(--dtm-raised));box-shadow:0 0 0 3px color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 12%,transparent),0 10px 24px #0005}
+    #${PANEL_ID} .dtm-close-hit{appearance:none;position:relative;display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;min-width:52px;min-height:52px;margin:-5px;padding:0;border:1px solid var(--dtm-line);border-radius:16px;background:color-mix(in oklab,var(--dtm-raised) 90%,transparent);color:var(--dtm-text);cursor:pointer;user-select:none;touch-action:manipulation;z-index:1000;pointer-events:auto!important}
+    #${PANEL_ID} .dtm-close-icon{display:block;width:24px;height:24px;pointer-events:none}
+    #${PANEL_ID} .dtm-close-hit:empty::before{content:"";display:block;width:24px;height:24px;background:linear-gradient(45deg,transparent calc(50% - 1.05px),currentColor calc(50% - 1.05px),currentColor calc(50% + 1.05px),transparent calc(50% + 1.05px)),linear-gradient(-45deg,transparent calc(50% - 1.05px),currentColor calc(50% - 1.05px),currentColor calc(50% + 1.05px),transparent calc(50% + 1.05px));pointer-events:none}
+    #${PANEL_ID} .dtm-close-hit:hover{border-color:var(--dream-manager-accent,#6edaf2);background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 16%,var(--dtm-raised));box-shadow:0 0 0 3px color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 12%,transparent),0 10px 24px #0005}
     #${PANEL_ID} .dtm-close-hit:active{transform:translateY(1px);background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 24%,var(--dtm-raised))}
     #${PANEL_ID} .dtm-close-hit:focus-visible{outline:2px solid var(--dream-manager-accent,#6edaf2);outline-offset:2px}
     #${PANEL_ID} .dtm-dialog-body{min-height:0;overflow:auto;padding:18px 24px}
@@ -116,6 +131,14 @@
     #${PANEL_ID} .dtm-icon-controls{display:flex;align-items:center;gap:6px}
     #${PANEL_ID} .dtm-icon-controls .dtm-button{padding:6px 9px}
     #${PANEL_ID} .dtm-icon-remove{width:28px;height:28px;padding:0;border:1px solid var(--dtm-line);border-radius:8px;background:transparent;color:var(--dtm-muted);line-height:1}
+    #${PANEL_ID} .dtm-image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+    #${PANEL_ID} .dtm-image-choice{position:relative;display:grid;gap:9px;padding:10px;border:1px solid var(--dtm-line);border-radius:14px;background:color-mix(in oklab,var(--dtm-surface) 55%,transparent);overflow:hidden}
+    #${PANEL_ID} .dtm-image-choice[aria-checked="true"]{border-color:var(--dream-manager-accent,#6edaf2);box-shadow:0 0 0 2px color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 16%,transparent)}
+    #${PANEL_ID} .dtm-image-choice[aria-checked="true"]::after{content:"当前";position:absolute;right:9px;top:9px;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 82%,#123);color:#f5fdff;font-size:10px;font-weight:700}
+    #${PANEL_ID} .dtm-image-thumb{display:grid;place-items:center;height:112px;border-radius:11px;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 16%,transparent),transparent 58%),linear-gradient(135deg,#10263d,#173957);border:1px solid var(--dtm-line);overflow:hidden}
+    #${PANEL_ID} .dtm-image-thumb img{width:100%;height:100%;display:block;object-fit:contain;background:#02071033}
+    #${PANEL_ID} .dtm-image-empty{color:var(--dtm-muted);font-size:12px}
+    #${PANEL_ID} .dtm-image-choice input{width:auto;height:auto}
     #${PANEL_ID} input[type="file"][hidden]{display:none}
     #${PANEL_ID} .dtm-source{display:grid;grid-template-columns:minmax(120px,180px) minmax(220px,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid color-mix(in srgb,var(--border-light,#263642) 65%,transparent);font-size:12px}
     #${PANEL_ID} .dtm-path{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary,#9bb0bc)}
@@ -124,6 +147,7 @@
     @media(max-width:780px){#${PANEL_ID}{padding:20px}#${PANEL_ID} .dtm-head{display:block}#${PANEL_ID} .dtm-status{margin-top:12px;width:max-content}#${PANEL_ID} .dtm-source,#${PANEL_ID} .dtm-form-grid,#${PANEL_ID} .dtm-color-grid,#${PANEL_ID} .dtm-icon-form,#${PANEL_ID} .dtm-manual-icon-add{grid-template-columns:1fr}#${PANEL_ID} .dtm-form-grid .dtm-wide{grid-column:auto}#${PANEL_ID} .dtm-modal-layer{padding:10px}#${PANEL_ID} .dtm-dialog{width:calc(100vw - 20px);max-height:calc(100vh - 20px)}#${PANEL_ID} .dtm-dialog-head,#${PANEL_ID} .dtm-dialog-body,#${PANEL_ID} .dtm-dialog-actions{padding-left:16px;padding-right:16px} }
   `;
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    const closeButton = (kind, label = "关闭") => `<button class="dtm-close-hit" type="button" data-dtm-close="${escapeHtml(kind)}" aria-label="${escapeHtml(label)}">${closeSvg}</button>`;
     const safePreview = (value) => typeof value === "string" && (/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(value) || /^https:\/\//i.test(value)) ? value : "";
     const hasPetPreview = (value) => Boolean(safePreview(value));
     const cssUrl = (value) => `url("${String(value).replace(/["\\\n\r\f]/g, "")}")`;
@@ -300,6 +324,14 @@
     let localImageFile = null;
     let localIconsJsonFile = null;
     let petPickerTheme = null;
+    let imageSettingsTheme = null;
+    let imageSettingsError = "";
+    let imageSettingsFiles = [];
+    let systemFontsLoaded = false;
+    let systemFonts = [
+        "Microsoft YaHei UI", "Microsoft YaHei", "SimHei", "SimSun", "KaiTi",
+        "Segoe UI", "Arial", "Calibri", "Consolas", "Cascadia Code",
+    ];
     const localIconFiles = new Map();
     const localIconSvgs = new Map();
     const localJsonIcons = new Map();
@@ -386,6 +418,42 @@
         const currentStyle = value === "transparent" ? "" : `--dtm-current-color:${escapeHtml(value)}`;
         return `<div class="dtm-color-field" style="${currentStyle}"><div class="dtm-color-head"><span class="dtm-color-current ${value === "transparent" ? "dtm-transparent-preview" : ""}" style="${currentStyle}"></span><span><span class="dtm-color-title">${escapeHtml(label)}</span><span class="dtm-color-note">${escapeHtml(notes[key] || "主题颜色")}</span></span><span class="dtm-color-value">${escapeHtml(value)}</span></div><div class="dtm-swatches">${swatches}</div><div class="dtm-color-actions"><label class="dtm-color-picker"><span class="dtm-color-picker-dot" style="${currentStyle}"></span><span>打开选色卡</span><input type="color" data-local-color-picker="${escapeHtml(key)}" value="${escapeHtml(colorPickerValue(value))}"></label><details class="dtm-advanced-color"><summary>高级 CSS 值</summary><input ${key === "accent" ? "data-local-theme-accent" : key === "detail" ? "data-local-theme-detail" : key === "sendBase" ? "data-local-theme-send-base" : "data-local-theme-processing-base"} value="${escapeHtml(value)}" placeholder="#6edaf2 / transparent / oklch(...)"></details></div></div>`;
     };
+    const clampNumber = (value, min, max, fallback) => {
+        const number = Number(value);
+        if (!Number.isFinite(number))
+            return fallback;
+        return Math.min(max, Math.max(min, Math.round(number)));
+    };
+    const loadSystemFonts = async () => {
+        if (systemFontsLoaded)
+            return;
+        systemFontsLoaded = true;
+        try {
+            const api = window.queryLocalFonts;
+            if (typeof api !== "function")
+                return;
+            const fonts = await api.call(window);
+            const names = Array.from(new Set(fonts.map((font) => String(font.family || font.fullName || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "zh-Hans-CN"));
+            if (names.length) {
+                systemFonts = [...new Set([...systemFonts, ...names])].slice(0, 260);
+                const select = document.querySelector(`#${PANEL_ID} select[data-theme-sidebar-font-family]`);
+                if (select)
+                    select.innerHTML = fontOptionsHtml(select.value);
+            }
+        }
+        catch { }
+    };
+    const fontOptionsHtml = (selectedValue) => {
+        const selected = String(selectedValue || "").trim();
+        const list = selected && !systemFonts.includes(selected) ? [selected, ...systemFonts] : systemFonts;
+        return `<option value="" ${selected ? "" : "selected"}>继承主题默认</option>${list.map((font) => `<option value="${escapeHtml(font)}" ${font === selected ? "selected" : ""}>${escapeHtml(font)}</option>`).join("")}`;
+    };
+    const themeColorControlHtml = (key, label, value, placeholder) => {
+        const normalized = String(value || "").trim();
+        const picker = colorPickerValue(normalized || "#6edaf2");
+        const style = normalized && normalized !== "transparent" ? `--dtm-current-color:${escapeHtml(normalized)}` : "";
+        return `<label class="dtm-field dtm-color-inline" style="${style}"><span>${escapeHtml(label)}</span><span class="dtm-color-inline-row"><input data-theme-color-field="${escapeHtml(key)}" value="${escapeHtml(normalized)}" placeholder="${escapeHtml(placeholder)}"><span class="dtm-color-picker dtm-color-picker-compact"><span class="dtm-color-picker-dot" style="${style}"></span><span>选色卡</span><input type="color" data-theme-color-picker="${escapeHtml(key)}" value="${escapeHtml(picker)}"></span></span></label>`;
+    };
     const fileToBase64 = async (file) => {
         const bytes = new Uint8Array(await file.arrayBuffer());
         let binary = "";
@@ -435,35 +503,142 @@
         }
         return style;
     };
-    const navIcon = `<span class="flex w-4 shrink-0 items-center justify-center" data-dream-theme-icon style="width:16px;height:16px">${palette}</span>`;
-    const setSelected = (button) => {
-        document.querySelectorAll('button[data-settings-panel-slug]').forEach((candidate) => {
-            candidate.removeAttribute("aria-current");
-            candidate.classList.remove("bg-token-list-hover-background");
-            candidate.querySelector("[class*='text-token-list-active-selection']")?.classList.remove("text-token-list-active-selection-foreground");
-        });
-        button.setAttribute("aria-current", "page");
-        button.classList.add("bg-token-list-hover-background");
+    const setTriggerExpanded = (expanded) => {
+        const trigger = document.getElementById(TRIGGER_ID);
+        if (trigger)
+            trigger.setAttribute("aria-expanded", expanded ? "true" : "false");
     };
-    const positionPanel = (panel, nav) => {
-        const aside = nav.closest("aside");
-        const bounds = aside?.getBoundingClientRect();
-        panel.style.left = `${Math.max(0, Math.round(bounds?.right ?? 270))}px`;
-        panel.style.top = `${Math.max(36, Math.round(bounds?.top ?? 36))}px`;
-        panel.style.right = "0";
-        panel.style.bottom = "0";
+    const themePreviewUrl = (theme) => {
+        const cardPreview = safePreview(theme.cardPreview);
+        if (cardPreview)
+            return cardPreview;
+        const direct = safePreview(theme.preview);
+        if (direct)
+            return direct;
+        const images = Array.isArray(theme.images) ? theme.images : [];
+        const active = images.find((image) => image.id === theme.defaultImage) || images[0];
+        return safePreview(active?.preview);
     };
     const themePreviewHtml = (theme, scope) => {
-        const preview = safePreview(theme.preview);
+        const preview = themePreviewUrl(theme);
         if (preview)
             return `<img src="${escapeHtml(preview)}" alt="">`;
         return `<img data-dtm-theme-preview-scope="${escapeHtml(scope)}" data-dtm-theme-preview-key="${escapeHtml(theme.key)}" alt="" hidden>${bird}`;
+    };
+    const imageThumbHtml = (preview) => safePreview(preview)
+        ? `<img src="${escapeHtml(safePreview(preview))}" alt="">`
+        : `<span class="dtm-image-empty">正在读取预览</span>`;
+    const splitImagePosition = (value) => {
+        const normalized = String(value || "auto").trim().toLowerCase();
+        if (!normalized || normalized === "auto")
+            return { x: "auto", y: "auto" };
+        const parts = normalized.split(/\s+/);
+        let x = parts.find((part) => part === "left" || part === "right" || part === "center") || "center";
+        let y = parts.find((part) => part === "top" || part === "bottom") || "";
+        if (!y && parts.includes("center"))
+            y = "center";
+        if (normalized === "top" || normalized === "bottom") {
+            x = "center";
+            y = normalized;
+        }
+        if (normalized === "left" || normalized === "right") {
+            x = normalized;
+            y = "center";
+        }
+        return { x, y: y || "center" };
+    };
+    const imagePositionValue = (x, y) => {
+        if (x === "auto" || y === "auto")
+            return "auto";
+        if (x === "center" && y === "center")
+            return "center";
+        if (y === "center")
+            return x;
+        if (x === "center")
+            return y;
+        return `${x} ${y}`;
+    };
+    const imageFitLabel = (value) => ({
+        cover: "等比填充（裁切）",
+        contain: "等比完整显示",
+        stretch: "拉伸铺满",
+        auto: "原始尺寸",
+    }[value] || value);
+    const imagePositionXLabel = (value) => ({
+        auto: "自动",
+        left: "左侧",
+        center: "居中",
+        right: "右侧",
+    }[value] || value);
+    const imagePositionYLabel = (value) => ({
+        auto: "自动",
+        top: "顶部",
+        center: "居中",
+        bottom: "底部",
+    }[value] || value);
+    const sidebarBackgroundLabel = (value) => ({
+        auto: "跟随主题",
+        transparent: "透明",
+        tint: "弱背景",
+        solid: "实色背景",
+    }[value] || value);
+    const sidebarFontSizeLabel = (value) => ({
+        default: "跟随 Codex",
+        small: "小",
+        normal: "标准",
+        large: "大",
+    }[value] || value);
+    const sidebarFontWeightLabel = (value) => ({
+        default: "跟随 Codex",
+        normal: "常规",
+        medium: "中等",
+        semibold: "半粗",
+        bold: "粗体",
+    }[value] || value);
+    const composerWidthLabel = (value) => ({
+        default: "跟随 Codex",
+        compact: "紧凑",
+        comfortable: "舒适",
+        wide: "加宽",
+        full: "接近全宽",
+    }[value] || value);
+    const composerHeightLabel = (value) => ({
+        default: "标准",
+        compact: "紧凑",
+        comfortable: "舒适",
+        large: "更高",
+    }[value] || value);
+    const composerFontSizeLabel = (value) => ({
+        default: "跟随 Codex",
+        small: "小",
+        normal: "标准",
+        large: "大",
+    }[value] || value);
+    const imageFileLabel = (value) => {
+        const normalized = String(value || "").trim();
+        if (!normalized || normalized === "image")
+            return "主题主图";
+        if (normalized === "preview" || normalized === "previewImage")
+            return "主题预览图";
+        return normalized;
+    };
+    const imageChoiceLabel = (image, theme) => {
+        const label = String(image?.label || "").trim();
+        if (label && !/^\?{2,}$/.test(label))
+            return label;
+        const id = String(image?.id || "").trim();
+        if (id === "scroll-water-realm")
+            return "金穗潮音";
+        if (id === "default")
+            return "默认图";
+        return theme?.name ? `${theme.name} 主图` : (id || "主题主图");
     };
     const cardHtml = (theme) => {
         const active = state && !state.paused && state.active?.id === theme.id;
         const meta = [theme.author, theme.version].filter(Boolean).map(escapeHtml).join(" · ");
         const petButton = theme.petId ? `<button class="dtm-bound-pet" type="button" data-theme-pet-edit="${escapeHtml(theme.key)}" data-dtm-pet-preview-pet="${escapeHtml(theme.petId)}" title="${escapeHtml(theme.petName || "")}" aria-label="编辑 ${escapeHtml(theme.name)} 的宠物"></button>` : "";
-        return `<article class="dtm-card"><div class="dtm-preview">${themePreviewHtml(theme, "installed")}${petButton}</div><div class="dtm-card-body"><div class="dtm-card-line"><div class="dtm-card-main"><div class="dtm-title">${escapeHtml(theme.name)}</div><div class="dtm-row">${theme.localOnly ? '<span class="dtm-chip">仅本地</span>' : ""}${meta ? `<p>${meta}</p>` : ""}</div></div><button class="dtm-button ${active ? "" : "dtm-button-primary"}" data-theme-use="${escapeHtml(theme.key)}" ${active ? "disabled" : ""}>${active ? "当前主题" : "启用主题"}</button></div></div></article>`;
+        const imageGear = `<button class="dtm-card-gear" type="button" data-theme-images-edit="${escapeHtml(theme.key)}" title="图片与显示设置" aria-label="打开 ${escapeHtml(theme.name)} 的图片与显示设置">${gear}</button>`;
+        return `<article class="dtm-card"><div class="dtm-preview">${themePreviewHtml(theme, "installed")}${imageGear}${petButton}</div><div class="dtm-card-body"><div class="dtm-card-line"><div class="dtm-card-main"><div class="dtm-title">${escapeHtml(theme.name)}</div><div class="dtm-row">${theme.localOnly ? '<span class="dtm-chip">仅本地</span>' : ""}${meta ? `<p>${meta}</p>` : ""}</div></div><span class="dtm-row"><button class="dtm-button ${active ? "" : "dtm-button-primary"}" data-theme-use="${escapeHtml(theme.key)}" ${active ? "disabled" : ""}>${active ? "当前主题" : "启用主题"}</button></span></div></div></article>`;
     };
     const bundledCardHtml = (theme) => {
         const installed = Boolean(state?.themes?.some((item) => item.id === theme.id));
@@ -501,7 +676,7 @@
             const source = selectedFile ? selectedFile.name : (fromJson ? `${localIconsJsonFile?.name || "icons.json"} · JSON 覆盖` : fromLibrary ? `${iconLibraryLabels.get(key)} · 图标库` : "继承基础主题");
             return `<div class="dtm-icon-field" data-icon-key="${escapeHtml(key)}" data-overridden="${Boolean(selectedFile || fromJson || fromLibrary)}"><span class="dtm-icon-preview">${svg || `<span class="dtm-icon-preview-placeholder">${escapeHtml(key.slice(0, 2).toUpperCase())}</span>`}</span><span class="dtm-icon-meta"><span class="dtm-icon-label">${escapeHtml(label)}</span><span class="dtm-icon-key">${escapeHtml(key)}</span><span class="dtm-icon-file" title="${escapeHtml(source)}">${escapeHtml(source)}</span><select data-local-icon-library="${escapeHtml(key)}" aria-label="为 ${escapeHtml(label)} 选择默认图标">${iconLibraryOptions}</select></span><span class="dtm-icon-controls"><label class="dtm-button">${selectedFile ? "更换" : "选择 SVG"}<input hidden type="file" accept=".svg,image/svg+xml" data-local-icon-file="${escapeHtml(key)}"></label>${selectedFile || fromLibrary ? `<button class="dtm-icon-remove" type="button" data-local-icon-remove="${escapeHtml(key)}" aria-label="清除 ${escapeHtml(label)}">×</button>` : ""}</span></div>`;
         }).join("");
-        return `<div class="dtm-modal-layer" role="presentation"><button class="dtm-modal-backdrop" type="button" data-local-theme-close aria-label="关闭弹窗"></button><section class="dtm-dialog" role="dialog" aria-modal="true" aria-labelledby="dtm-local-title"><div class="dtm-dialog-head"><div><h2 id="dtm-local-title">本地自定义主题</h2><p>配置只保存在本机。颜色用预设色块或选色卡配置；图标可从默认库选择，也可手动添加 SVG。</p></div><button class="dtm-close-hit" type="button" data-local-theme-close aria-label="Close"></button></div><div class="dtm-dialog-body"><div class="dtm-local-form">${localDraftError ? `<div class="dtm-form-error">${escapeHtml(localDraftError)}</div>` : ""}<section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>基本信息</h3><p>填写名称、选择基础主题和背景图片。</p></div></div><div class="dtm-form-grid"><label class="dtm-field"><span>主题名称</span><input data-local-theme-name value="${escapeHtml(localThemeName)}" placeholder="例如：我的夜空"></label><label class="dtm-field"><span>基础主题</span><select data-local-theme-base aria-label="基础主题">${baseOptions}</select></label><label class="dtm-field dtm-wide"><span>背景图片</span><span class="dtm-file-box"><span class="dtm-file-name" data-local-theme-image-name>${localImageFile ? escapeHtml(localImageFile.name) : "支持 PNG、JPG、WebP、GIF，最大 16 MB"}</span><span class="dtm-file-actions"><label class="dtm-button dtm-button-primary">选择图片<input hidden type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" data-local-theme-image-file></label></span></span></label></div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>主题色</h3><p>点击固定色块或透明按钮；需要精细调整时使用系统选色卡。</p></div></div><div class="dtm-color-grid">${colorControls}</div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>图标</h3><p>每项显示当前图标；可从默认图标库套用，也可上传 SVG 替换。</p></div></div><div class="dtm-manual-icon-add"><label class="dtm-field"><span>手动添加图标键</span><input data-local-new-icon-key value="${escapeHtml(localNewIconKey)}" placeholder="例如：customLogo"></label><label class="dtm-button">添加 SVG<input hidden type="file" accept=".svg,image/svg+xml" data-local-new-icon-file></label></div><div class="dtm-icon-form">${iconFields || '<div class="dtm-empty">基础主题没有可配置图标。</div>'}</div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>批量导入</h3><p>可导入完整或部分 <code>icons.json</code>，单项上传和图标库选择优先级更高。</p></div></div><span class="dtm-file-box"><span class="dtm-file-name" data-local-theme-icons-name>${localIconsJsonFile ? escapeHtml(localIconsJsonFile.name) : "导入主题包 v3 的 icons.json；可只包含需要覆盖的图标"}</span><span class="dtm-file-actions"><label class="dtm-button">选择 icons.json<input hidden type="file" accept=".json,application/json" data-local-theme-icons-file></label>${localIconsJsonFile ? '<button class="dtm-button" type="button" data-local-icons-clear>清除</button>' : ""}</span></span></section></div></div><div class="dtm-dialog-actions"><button class="dtm-button" type="button" data-local-theme-close>取消</button><button class="dtm-button dtm-button-primary" type="button" data-local-theme-create>另存为本地主题</button></div></section></div>`;
+        return `<div class="dtm-modal-layer" role="presentation"><button class="dtm-modal-backdrop" type="button" data-local-theme-close aria-label="关闭弹窗"></button><section class="dtm-dialog" role="dialog" aria-modal="true" aria-labelledby="dtm-local-title"><div class="dtm-dialog-head"><div><h2 id="dtm-local-title">本地自定义主题</h2><p>配置只保存在本机。颜色用预设色块或选色卡配置；图标可从默认库选择，也可手动添加 SVG。</p></div><button class="dtm-close-hit" type="button" data-local-theme-close aria-label="关闭"></button></div><div class="dtm-dialog-body"><div class="dtm-local-form">${localDraftError ? `<div class="dtm-form-error">${escapeHtml(localDraftError)}</div>` : ""}<section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>基本信息</h3><p>填写名称、选择基础主题和背景图片。</p></div></div><div class="dtm-form-grid"><label class="dtm-field"><span>主题名称</span><input data-local-theme-name value="${escapeHtml(localThemeName)}" placeholder="例如：我的夜空"></label><label class="dtm-field"><span>基础主题</span><select data-local-theme-base aria-label="基础主题">${baseOptions}</select></label><label class="dtm-field dtm-wide"><span>背景图片</span><span class="dtm-file-box"><span class="dtm-file-name" data-local-theme-image-name>${localImageFile ? escapeHtml(localImageFile.name) : "支持 PNG、JPG、WebP、GIF，最大 16 MB"}</span><span class="dtm-file-actions"><label class="dtm-button dtm-button-primary">选择图片<input hidden type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" data-local-theme-image-file></label></span></span></label></div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>主题色</h3><p>点击固定色块或透明按钮；需要精细调整时使用系统选色卡。</p></div></div><div class="dtm-color-grid">${colorControls}</div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>图标</h3><p>每项显示当前图标；可从默认图标库套用，也可上传 SVG 替换。</p></div></div><div class="dtm-manual-icon-add"><label class="dtm-field"><span>手动添加图标键</span><input data-local-new-icon-key value="${escapeHtml(localNewIconKey)}" placeholder="例如：customLogo"></label><label class="dtm-button">添加 SVG<input hidden type="file" accept=".svg,image/svg+xml" data-local-new-icon-file></label></div><div class="dtm-icon-form">${iconFields || '<div class="dtm-empty">基础主题没有可配置图标。</div>'}</div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>批量导入</h3><p>可导入完整或部分 <code>icons.json</code>，单项上传和图标库选择优先级更高。</p></div></div><span class="dtm-file-box"><span class="dtm-file-name" data-local-theme-icons-name>${localIconsJsonFile ? escapeHtml(localIconsJsonFile.name) : "导入主题包 v3 的 icons.json；可只包含需要覆盖的图标"}</span><span class="dtm-file-actions"><label class="dtm-button">选择 icons.json<input hidden type="file" accept=".json,application/json" data-local-theme-icons-file></label>${localIconsJsonFile ? '<button class="dtm-button" type="button" data-local-icons-clear>清除</button>' : ""}</span></span></section></div></div><div class="dtm-dialog-actions"><button class="dtm-button" type="button" data-local-theme-close>取消</button><button class="dtm-button dtm-button-primary" type="button" data-local-theme-create>另存为本地主题</button></div></section></div>`;
     };
     const petPickerDialogHtml = () => {
         if (!petPickerTheme)
@@ -510,7 +685,58 @@
             const active = petPickerTheme?.petId === pet.id;
             return `<button class="dtm-card dtm-create-card" type="button" data-theme-pet-pick="${escapeHtml(pet.id)}" data-theme-key="${escapeHtml(petPickerTheme.key)}" aria-pressed="${active}"><div class="dtm-preview">${pet.id ? `<span class="dtm-pet-sprite" data-dtm-pet-preview-pet="${escapeHtml(pet.id)}" aria-hidden="true"></span>` : bird}</div><div class="dtm-card-body"><div class="dtm-card-line"><div class="dtm-card-main"><div class="dtm-title">${escapeHtml(pet.displayName)}</div><div class="dtm-row">${active ? '<span class="dtm-chip">当前绑定</span>' : ""}</div></div><span class="dtm-button ${active ? "" : "dtm-button-primary"}">${active ? "已选中" : "选中"}</span></div></div></button>`;
         }).join("");
-        return `<div class="dtm-modal-layer" role="presentation"><button class="dtm-modal-backdrop" type="button" data-theme-pet-close aria-label="关闭弹窗"></button><section class="dtm-dialog" role="dialog" aria-modal="true" aria-labelledby="dtm-pet-title"><div class="dtm-dialog-head"><div><h2 id="dtm-pet-title">编辑主题宠物</h2><p>${escapeHtml(petPickerTheme.name)} 的宠物绑定会写入这个主题包配置。</p></div><button class="dtm-close-hit" type="button" data-theme-pet-close aria-label="Close"></button></div><div class="dtm-dialog-body">${pets ? `<div class="dtm-grid">${pets}</div>` : '<div class="dtm-empty">没有发现有效的 Codex v2 宠物包。</div>'}</div><div class="dtm-dialog-actions"><button class="dtm-button ${petPickerTheme.petId ? "dtm-button-danger" : ""}" type="button" data-theme-pet-clear="${escapeHtml(petPickerTheme.key)}" ${petPickerTheme.petId ? "" : "disabled"}>解除绑定</button><button class="dtm-button" type="button" data-theme-pet-close>取消</button></div></section></div>`;
+        return `<div class="dtm-modal-layer" role="presentation"><button class="dtm-modal-backdrop" type="button" data-theme-pet-close aria-label="关闭弹窗"></button><section class="dtm-dialog" role="dialog" aria-modal="true" aria-labelledby="dtm-pet-title"><div class="dtm-dialog-head"><div><h2 id="dtm-pet-title">编辑主题宠物</h2><p>${escapeHtml(petPickerTheme.name)} 的宠物绑定会写入这个主题包配置。</p></div><button class="dtm-close-hit" type="button" data-theme-pet-close aria-label="关闭"></button></div><div class="dtm-dialog-body">${pets ? `<div class="dtm-grid">${pets}</div>` : '<div class="dtm-empty">没有发现有效的 Codex v2 宠物包。</div>'}</div><div class="dtm-dialog-actions"><button class="dtm-button ${petPickerTheme.petId ? "dtm-button-danger" : ""}" type="button" data-theme-pet-clear="${escapeHtml(petPickerTheme.key)}" ${petPickerTheme.petId ? "" : "disabled"}>解除绑定</button><button class="dtm-button" type="button" data-theme-pet-close>取消</button></div></section></div>`;
+    };
+    const imageSettingsDialogHtml = () => {
+        if (!imageSettingsTheme)
+            return "";
+        const display = imageSettingsTheme.display || {};
+        const rotation = display.rotation || {};
+        const position = splitImagePosition(display.position || "auto");
+        const sidebar = imageSettingsTheme.sidebar || {};
+        const composer = imageSettingsTheme.composer || {};
+        const images = (imageSettingsTheme.images?.length ? imageSettingsTheme.images : [{
+                id: imageSettingsTheme.defaultImage || "default",
+                label: "默认图",
+                path: "image",
+            }]).map((image) => {
+            const active = (imageSettingsTheme?.defaultImage || "default") === image.id;
+            const preview = safePreview(image.preview) || (active ? themePreviewUrl(imageSettingsTheme) : "") || safePreview(imageSettingsTheme?.preview || "");
+            const label = imageChoiceLabel(image, imageSettingsTheme);
+            return `<label class="dtm-image-choice" aria-checked="${active}"><span class="dtm-image-thumb">${imageThumbHtml(preview)}</span><span class="dtm-row"><input type="radio" name="dtm-default-image" value="${escapeHtml(image.id)}" ${active ? "checked" : ""}><span><span class="dtm-title">${escapeHtml(label)}</span><p>文件：${escapeHtml(imageFileLabel(image.path))}</p></span></span></label>`;
+        }).join("");
+        const option = (value, label, current) => `<option value="${escapeHtml(value)}" ${current === value ? "selected" : ""}>${escapeHtml(label)}</option>`;
+        const sidebarTextBrightness = clampNumber(sidebar.textBrightness ?? 100, 60, 140, 100);
+        const sidebarFontFamily = String(sidebar.fontFamily || "").trim();
+        const sidebarTextColorControl = themeColorControlHtml("sidebarTextColor", "侧边文字颜色", sidebar.textColor || "", "#f6fbff / rgba() / oklch(...)");
+        const sidebarIconColorControl = themeColorControlHtml("sidebarIconColor", "侧边图标颜色", sidebar.iconColor || "", "#6edaf2 / currentColor / oklch(...)");
+        return `<div class="dtm-modal-layer" role="presentation"><button class="dtm-modal-backdrop" type="button" data-theme-images-close aria-label="关闭弹窗"></button><section class="dtm-dialog" role="dialog" aria-modal="true" aria-labelledby="dtm-images-title"><div class="dtm-dialog-head"><div><h2 id="dtm-images-title">图片与显示设置</h2><p>${escapeHtml(imageSettingsTheme.name)} 的主题内部图片、输入框、侧边栏和轮换配置会写入这个已安装主题。</p></div><button class="dtm-close-hit" type="button" data-theme-images-close aria-label="关闭"></button></div><div class="dtm-dialog-body"><div class="dtm-local-form">${imageSettingsError ? `<div class="dtm-form-error">${escapeHtml(imageSettingsError)}</div>` : ""}<section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>主题内部图片</h3><p>这里展示主题包里的图片；选择一张作为当前背景。追加图片后可开启多图定时轮换。</p></div></div><div class="dtm-image-list">${images}</div><span class="dtm-file-box"><span class="dtm-file-name">${imageSettingsFiles.length ? imageSettingsFiles.map((file) => escapeHtml(file.name)).join("、") : "追加 PNG、JPG、WebP、GIF，可多选"}</span><span class="dtm-file-actions"><label class="dtm-button">追加图片<input hidden multiple type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" data-theme-images-file></label></span></span></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>背景显示方式</h3><p>适配方式决定图片缩放；横向和纵向对齐用于控制主体在窗口中的位置。</p></div></div><div class="dtm-form-grid"><label class="dtm-field"><span>图像拉伸</span><select data-theme-image-fit>${option("cover", imageFitLabel("cover"), display.fit || "cover")}${option("contain", imageFitLabel("contain"), display.fit || "cover")}${option("stretch", imageFitLabel("stretch"), display.fit || "cover")}${option("auto", imageFitLabel("auto"), display.fit || "cover")}</select></label><label class="dtm-field"><span>平铺模式</span><select data-theme-image-repeat>${option("no-repeat", "不平铺", display.repeat || "no-repeat")}${option("repeat", "横纵平铺", display.repeat || "no-repeat")}${option("repeat-x", "横向平铺", display.repeat || "no-repeat")}${option("repeat-y", "纵向平铺", display.repeat || "no-repeat")}</select></label><label class="dtm-field"><span>横向对齐方式</span><select data-theme-image-position-x>${["auto", "left", "center", "right"].map((value) => option(value, imagePositionXLabel(value), position.x)).join("")}</select></label><label class="dtm-field"><span>纵向对齐方式</span><select data-theme-image-position-y>${["auto", "top", "center", "bottom"].map((value) => option(value, imagePositionYLabel(value), position.y)).join("")}</select></label><label class="dtm-field"><span>轮换间隔（秒）</span><input data-theme-image-interval type="number" min="5" max="3600" value="${escapeHtml(String(rotation.intervalSeconds || 45))}"></label><label class="dtm-field dtm-wide"><span class="dtm-row"><input data-theme-image-rotation type="checkbox" ${rotation.enabled ? "checked" : ""}> 开启多图定时轮换</span></label></div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>输入框</h3><p>控制任务输入框的宽度、高度和文字大小。旧主题可点初始化补齐默认字段。</p></div><button class="dtm-button" type="button" data-theme-settings-init="${escapeHtml(imageSettingsTheme.key)}">一键初始化旧设置</button></div><div class="dtm-form-grid"><label class="dtm-field"><span>输入框宽度</span><select data-theme-composer-width>${["default", "compact", "comfortable", "wide", "full"].map((value) => option(value, composerWidthLabel(value), composer.width || "default")).join("")}</select></label><label class="dtm-field"><span>输入框高度</span><select data-theme-composer-height>${["default", "compact", "comfortable", "large"].map((value) => option(value, composerHeightLabel(value), composer.height || "default")).join("")}</select></label><label class="dtm-field"><span>输入文字大小</span><select data-theme-composer-font-size>${["default", "small", "normal", "large"].map((value) => option(value, composerFontSizeLabel(value), composer.fontSize || "default")).join("")}</select></label></div></section><section class="dtm-form-section"><div class="dtm-form-section-head"><div><h3>侧边栏</h3><p>控制侧边栏背景、字体和颜色；这些设置写入当前主题。</p></div></div><div class="dtm-form-grid"><label class="dtm-field"><span>侧边背景</span><select data-theme-sidebar-background>${["auto", "transparent", "tint", "solid"].map((value) => option(value, sidebarBackgroundLabel(value), sidebar.background || "auto")).join("")}</select></label><label class="dtm-field"><span>侧边字体</span><input data-theme-sidebar-font-family value="${escapeHtml(sidebar.fontFamily || "")}" placeholder="例如：Microsoft YaHei UI"></label><label class="dtm-field"><span>侧边文字颜色</span><input data-theme-sidebar-text-color value="${escapeHtml(sidebar.textColor || "")}" placeholder="#f6fbff / oklch(...)"></label><label class="dtm-field"><span>侧边图标颜色</span><input data-theme-sidebar-icon-color value="${escapeHtml(sidebar.iconColor || "")}" placeholder="#6edaf2 / currentColor"></label><label class="dtm-field"><span>侧边字号</span><select data-theme-sidebar-font-size>${["default", "small", "normal", "large"].map((value) => option(value, sidebarFontSizeLabel(value), sidebar.fontSize || "default")).join("")}</select></label><label class="dtm-field"><span>侧边字重</span><select data-theme-sidebar-font-weight>${["default", "normal", "medium", "semibold", "bold"].map((value) => option(value, sidebarFontWeightLabel(value), sidebar.fontWeight || "default")).join("")}</select></label></div></section></div></div><div class="dtm-dialog-actions"><button class="dtm-button" type="button" data-theme-images-close>取消</button><button class="dtm-button dtm-button-primary" type="button" data-theme-images-save="${escapeHtml(imageSettingsTheme.key)}">保存图片与显示设置</button></div></section></div>`;
+    };
+    const enhanceImageSettingsDialog = (panel) => {
+        if (!imageSettingsTheme)
+            return;
+        void loadSystemFonts();
+        const sidebar = imageSettingsTheme.sidebar || {};
+        const fontInput = panel.querySelector("[data-theme-sidebar-font-family]");
+        const fontLabel = fontInput?.closest("label");
+        if (fontLabel && fontLabel.tagName.toLowerCase() === "label") {
+            const current = String(sidebar.fontFamily || fontInput?.value || "").trim();
+            fontLabel.outerHTML = `<label class="dtm-field"><span>侧边字体（系统字体）</span><select data-theme-sidebar-font-family>${fontOptionsHtml(current)}</select></label><label class="dtm-field dtm-wide"><span>自定义字体名</span><input data-theme-sidebar-font-family-custom value="" placeholder="可选：输入下拉中没有的字体名；留空则使用上方选择"></label>`;
+        }
+        const textColorInput = panel.querySelector("[data-theme-sidebar-text-color]");
+        textColorInput?.closest("label")?.replaceWith(htmlFragment(themeColorControlHtml("sidebarTextColor", "侧边文字颜色", sidebar.textColor || textColorInput.value || "", "#f6fbff / rgba() / oklch(...)")));
+        const iconColorInput = panel.querySelector("[data-theme-sidebar-icon-color]");
+        iconColorInput?.closest("label")?.replaceWith(htmlFragment(themeColorControlHtml("sidebarIconColor", "侧边图标颜色", sidebar.iconColor || iconColorInput.value || "", "#6edaf2 / currentColor / oklch(...)")));
+        const fontWeight = panel.querySelector("[data-theme-sidebar-font-weight]")?.closest("label");
+        if (fontWeight && !panel.querySelector("[data-theme-sidebar-text-brightness]")) {
+            const value = clampNumber(sidebar.textBrightness ?? 100, 60, 140, 100);
+            fontWeight.insertAdjacentHTML("afterend", `<label class="dtm-field dtm-wide"><span>侧边字体亮度</span><span class="dtm-range-row"><input data-theme-sidebar-text-brightness type="range" min="60" max="140" step="5" value="${escapeHtml(String(value))}"><output data-theme-sidebar-text-brightness-value>${escapeHtml(String(value))}%</output></span></label>`);
+        }
+    };
+    const htmlFragment = (html) => {
+        const template = document.createElement("template");
+        template.innerHTML = html.trim();
+        return template.content.firstElementChild || document.createTextNode("");
     };
     const petHtml = (pet) => {
         const active = state?.selectedPet === pet.id;
@@ -539,7 +765,8 @@
         const baseOptions = (state.bundledThemes || []).map((theme) => `<option value="${escapeHtml(theme.key)}" ${theme.key === localBaseKey ? "selected" : ""}>${escapeHtml(theme.name)}</option>`).join("");
         const themePane = `<section class="dtm-section"><h2>主题</h2><div class="dtm-grid">${themes}</div></section>`;
         const petPane = `<section class="dtm-section"><h2>主题宠物</h2><p style="margin-bottom:12px">宠物独立保存在本机。选择后只把宠物 ID 绑定到当前主题；主题卡片会直接显示绑定宠物的样子。</p>${pets ? `<div class="dtm-grid">${pets}</div><div class="dtm-row" style="margin-top:12px"><button class="dtm-button ${state.selectedPet ? "dtm-button-danger" : ""}" data-pet-clear ${state.selectedPet ? "" : "disabled"}>解除主题宠物绑定</button></div>` : '<div class="dtm-empty">没有发现有效的 Codex v2 宠物包。</div>'}</section>`;
-        panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1><p>主题管理工具独立安装；主题、背景图片和可选宠物都在本页安装与启用。</p></div><div class="dtm-row"><div class="dtm-status"><span class="dtm-dot"></span>${state.paused ? "官方外观" : `当前：${escapeHtml(state.active?.name || "主题")}`} · ${state.hotReload ? "热重载已开启" : "自动刷新"}</div><button class="dtm-close-hit" type="button" data-manager-close aria-label="Close"></button></div></div><div class="dtm-row"><button class="dtm-button ${state.paused ? "dtm-button-primary" : "dtm-button-danger"}" data-official ${state.paused && !state.canEnableActive ? "disabled" : ""}>${state.paused ? (state.canEnableActive ? "启用当前主题" : "请先安装主题") : "还原官方外观"}</button><button class="dtm-button" data-refresh>立即刷新</button><p>新安装的管理工具默认保持官方外观；还原不会删除已安装主题、宠物或自定义配置。</p></div><div class="dtm-tabs" role="tablist" aria-label="主题内容"><button class="dtm-tab" role="tab" aria-selected="${activeTab === "themes"}" data-manager-tab="themes">主题</button><button class="dtm-tab" role="tab" aria-selected="${activeTab === "pets"}" data-manager-tab="pets">宠物</button></div>${activeTab === "pets" ? petPane : themePane}${message ? `<div class="dtm-message">${escapeHtml(message)}</div>` : ""}</div>${localCreatorDialogHtml(baseOptions)}${petPickerDialogHtml()}`;
+        panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1><p>主题管理工具独立安装；主题、背景图片和可选宠物都在本页安装与启用。</p></div><div class="dtm-row"><div class="dtm-status"><span class="dtm-dot"></span>${state.paused ? "官方外观" : `当前：${escapeHtml(state.active?.name || "主题")}`} · ${state.hotReload ? "热重载已开启" : "自动刷新"}</div>${closeButton("manager")}</div></div><div class="dtm-row"><button class="dtm-button ${state.paused ? "dtm-button-primary" : "dtm-button-danger"}" data-official ${state.paused && !state.canEnableActive ? "disabled" : ""}>${state.paused ? (state.canEnableActive ? "启用当前主题" : "请先安装主题") : "还原官方外观"}</button><button class="dtm-button" data-refresh>立即刷新</button><p>新安装的管理工具默认保持官方外观；还原不会删除已安装主题、宠物或自定义配置。</p></div><div class="dtm-tabs" role="tablist" aria-label="主题内容"><button class="dtm-tab" role="tab" aria-selected="${activeTab === "themes"}" data-manager-tab="themes">主题</button><button class="dtm-tab" role="tab" aria-selected="${activeTab === "pets"}" data-manager-tab="pets">宠物</button></div>${activeTab === "pets" ? petPane : themePane}${message ? `<div class="dtm-message">${escapeHtml(message)}</div>` : ""}</div>${localCreatorDialogHtml(baseOptions)}${petPickerDialogHtml()}${imageSettingsDialogHtml()}`;
+        enhanceImageSettingsDialog(panel);
         applyThemePreviewImages(panel);
         applyPetPreviewStyles(panel);
     };
@@ -558,57 +785,39 @@
             render();
         }
     };
-    const closeButtonFromPoint = (event) => {
-        const panel = document.getElementById(PANEL_ID);
-        if (!panel)
-            return null;
-        for (const button of Array.from(panel.querySelectorAll(".dtm-close-hit[data-manager-close],.dtm-close-hit[data-local-theme-close],.dtm-close-hit[data-theme-pet-close]"))) {
-            const rect = button.getBoundingClientRect();
-            if (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom)
-                return button;
-        }
-        return null;
-    };
     const runCloseAction = (closeTarget) => {
-        if (closeTarget.hasAttribute("data-manager-close")) {
+        const closeKind = closeTarget.dataset.dtmClose || "";
+        if (closeKind === "manager" || closeTarget.hasAttribute("data-manager-close")) {
             hide();
             return true;
         }
-        if (closeTarget.hasAttribute("data-local-theme-close")) {
+        if (closeKind === "localTheme" || closeTarget.hasAttribute("data-local-theme-close")) {
             localModalOpen = false;
             resetLocalDraft();
             render();
             return true;
         }
-        if (closeTarget.hasAttribute("data-theme-pet-close")) {
+        if (closeKind === "themePet" || closeTarget.hasAttribute("data-theme-pet-close")) {
             petPickerTheme = null;
+            render();
+            return true;
+        }
+        if (closeKind === "themeImages" || closeTarget.hasAttribute("data-theme-images-close")) {
+            imageSettingsTheme = null;
+            imageSettingsError = "";
+            imageSettingsFiles = [];
             render();
             return true;
         }
         return false;
     };
-    const onPanelPointerMove = (event) => {
-        const panel = document.getElementById(PANEL_ID);
-        if (!panel)
-            return;
-        const hovered = closeButtonFromPoint(event);
-        panel.querySelectorAll(".dtm-close-hit").forEach((button) => {
-            button.classList.toggle("dtm-close-hover", button === hovered);
-        });
-    };
-    const onPanelPointerLeave = () => {
-        document.querySelectorAll(`#${PANEL_ID} .dtm-close-hit.dtm-close-hover`).forEach((button) => button.classList.remove("dtm-close-hover"));
-    };
     const onPanelClick = (event) => {
-        const pointCloseTarget = closeButtonFromPoint(event);
-        if (pointCloseTarget) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (runCloseAction(pointCloseTarget))
-                return;
-        }
         const element = event.target;
-        const closeTarget = element?.closest("[data-manager-close],[data-local-theme-close],[data-theme-pet-close]");
+        if (element?.id === PANEL_ID) {
+            hide();
+            return;
+        }
+        const closeTarget = element?.closest("[data-dtm-close],[data-manager-close],[data-local-theme-close],[data-theme-pet-close],[data-theme-images-close]");
         if (closeTarget && runCloseAction(closeTarget))
             return;
         const target = element?.closest("button");
@@ -623,6 +832,27 @@
             petPickerTheme = null;
             localModalOpen = true;
             render();
+        }
+        else if (target.dataset.themeImagesEdit) {
+            imageSettingsTheme = state?.themes?.find((theme) => theme.key === target.dataset.themeImagesEdit) || null;
+            imageSettingsError = "";
+            imageSettingsFiles = [];
+            localModalOpen = false;
+            petPickerTheme = null;
+            render();
+            if (imageSettingsTheme?.key) {
+                const key = imageSettingsTheme.key;
+                call("getThemeImages", { key }).then((result) => {
+                    if (!result?.images?.length || imageSettingsTheme?.key !== key)
+                        return;
+                    imageSettingsTheme = {
+                        ...imageSettingsTheme,
+                        defaultImage: result.defaultImage || imageSettingsTheme.defaultImage,
+                        images: result.images,
+                    };
+                    render();
+                }).catch(() => { });
+            }
         }
         else if (target.dataset.themePetEdit) {
             petPickerTheme = state?.themes?.find((theme) => theme.key === target.dataset.themePetEdit) || null;
@@ -675,6 +905,64 @@
             act(() => call("useTheme", { key: target.dataset.themeUse }), "主题已启用");
         else if (target.dataset.bundledInstall)
             act(() => call("installBundledTheme", { key: target.dataset.bundledInstall }), "主题安装完成，可在主题列表中启用");
+        else if (target.dataset.themeSettingsInit) {
+            const key = target.dataset.themeSettingsInit;
+            const theme = imageSettingsTheme;
+            act(async () => call("updateThemeImages", {
+                key,
+                defaultImage: theme?.defaultImage || "",
+                display: theme?.display || { fit: "cover", position: "auto", repeat: "no-repeat", rotation: { enabled: false, intervalSeconds: 45 } },
+                sidebar: theme?.sidebar || { background: "auto", fontFamily: "", textColor: "", iconColor: "", fontSize: "default", fontWeight: "default", textBrightness: 100 },
+                composer: theme?.composer || { width: "default", height: "default", fontSize: "default" },
+                addedImages: [],
+            }), "旧主题设置已初始化");
+        }
+        else if (target.dataset.themeImagesSave) {
+            const panel = document.getElementById(PANEL_ID);
+            const defaultImage = panel.querySelector("input[name='dtm-default-image']:checked")?.value || imageSettingsTheme?.defaultImage || "";
+            const fit = panel.querySelector("[data-theme-image-fit]")?.value || "cover";
+            const positionX = panel.querySelector("[data-theme-image-position-x]")?.value || "auto";
+            const positionY = panel.querySelector("[data-theme-image-position-y]")?.value || "auto";
+            const position = imagePositionValue(positionX, positionY);
+            const repeat = panel.querySelector("[data-theme-image-repeat]")?.value || "no-repeat";
+            const intervalSeconds = Number(panel.querySelector("[data-theme-image-interval]")?.value || 45);
+            const rotationEnabled = Boolean(panel.querySelector("[data-theme-image-rotation]")?.checked);
+            const sidebarBackground = panel.querySelector("[data-theme-sidebar-background]")?.value || "auto";
+            const sidebarFontFamilyValue = panel.querySelector("[data-theme-sidebar-font-family]")?.value || "";
+            const sidebarFontFamilyCustom = panel.querySelector("[data-theme-sidebar-font-family-custom]")?.value || "";
+            const sidebarFontFamily = sidebarFontFamilyCustom.trim() || sidebarFontFamilyValue;
+            const sidebarTextColor = panel.querySelector("[data-theme-color-field='sidebarTextColor']")?.value ||
+                panel.querySelector("[data-theme-sidebar-text-color]")?.value || "";
+            const sidebarIconColor = panel.querySelector("[data-theme-color-field='sidebarIconColor']")?.value ||
+                panel.querySelector("[data-theme-sidebar-icon-color]")?.value || "";
+            const sidebarFontSize = panel.querySelector("[data-theme-sidebar-font-size]")?.value || "default";
+            const sidebarFontWeight = panel.querySelector("[data-theme-sidebar-font-weight]")?.value || "default";
+            const sidebarTextBrightness = clampNumber(panel.querySelector("[data-theme-sidebar-text-brightness]")?.value || 100, 60, 140, 100);
+            const composerWidth = panel.querySelector("[data-theme-composer-width]")?.value || "default";
+            const composerHeight = panel.querySelector("[data-theme-composer-height]")?.value || "default";
+            const composerFontSize = panel.querySelector("[data-theme-composer-font-size]")?.value || "default";
+            const filesToAdd = imageSettingsFiles;
+            imageSettingsTheme = null;
+            imageSettingsFiles = [];
+            imageSettingsError = "";
+            render();
+            act(async () => {
+                const addedImages = await Promise.all(filesToAdd.map(async (file) => ({
+                    name: file.name,
+                    label: file.name.replace(/\.[^.]+$/, ""),
+                    base64: await fileToBase64(file),
+                })));
+                const result = await call("updateThemeImages", {
+                    key: target.dataset.themeImagesSave,
+                    defaultImage,
+                    addedImages,
+                    display: { fit, position, repeat, rotation: { enabled: rotationEnabled, intervalSeconds } },
+                    sidebar: { background: sidebarBackground, fontFamily: sidebarFontFamily, textColor: sidebarTextColor, iconColor: sidebarIconColor, fontSize: sidebarFontSize, fontWeight: sidebarFontWeight, textBrightness: sidebarTextBrightness },
+                    composer: { width: composerWidth, height: composerHeight, fontSize: composerFontSize },
+                });
+                return result;
+            }, "主题图片设置已保存");
+        }
         else if (target.hasAttribute("data-local-theme-create")) {
             const panel = document.getElementById(PANEL_ID);
             const name = panel.querySelector("[data-local-theme-name]")?.value || "";
@@ -714,7 +1002,7 @@
     const onPanelKeydown = (event) => {
         if (event.key !== "Enter" && event.key !== " ")
             return;
-        const closeTarget = event.target?.closest(".dtm-close-hit[data-manager-close],.dtm-close-hit[data-local-theme-close],.dtm-close-hit[data-theme-pet-close]");
+        const closeTarget = event.target?.closest(".dtm-close-hit[data-dtm-close],.dtm-close-hit[data-manager-close],.dtm-close-hit[data-local-theme-close],.dtm-close-hit[data-theme-pet-close],.dtm-close-hit[data-theme-images-close]");
         if (!closeTarget)
             return;
         event.preventDefault();
@@ -738,6 +1026,12 @@
             setLocalColorValue(input.dataset.localColorPicker || "", input.value);
             localDraftError = "";
             render();
+        }
+        else if (input.matches("[data-theme-color-picker]")) {
+            const key = input.dataset.themeColorPicker || "";
+            const field = document.querySelector(`#${PANEL_ID} [data-theme-color-field="${key}"]`);
+            if (field)
+                field.value = input.value;
         }
         else if (input.matches("[data-local-theme-accent]"))
             localAccent = input.value;
@@ -767,6 +1061,11 @@
             const label = document.querySelector(`#${PANEL_ID} [data-local-theme-image-name]`);
             if (label)
                 label.textContent = localImageFile?.name || "支持 PNG、JPG、WebP、GIF，最大 16 MB";
+        }
+        else if (input.matches("[data-theme-images-file]")) {
+            imageSettingsFiles = Array.from(input.files || []).slice(0, 8);
+            imageSettingsError = "";
+            render();
         }
         else if (input.matches("[data-local-theme-icons-file]")) {
             const file = input.files?.[0] || null;
@@ -847,27 +1146,42 @@
             render();
         }
     };
-    const show = async (button, nav) => {
+    const onPanelInput = (event) => {
+        const input = event.target;
+        if (!input)
+            return;
+        if (input.matches("[data-theme-sidebar-text-brightness]")) {
+            const value = clampNumber(input.value, 60, 140, 100);
+            const output = document.querySelector(`#${PANEL_ID} [data-theme-sidebar-text-brightness-value]`);
+            if (output)
+                output.textContent = `${value}%`;
+        }
+        else if (input.matches("[data-theme-color-picker]")) {
+            const key = input.dataset.themeColorPicker || "";
+            const field = document.querySelector(`#${PANEL_ID} [data-theme-color-field="${key}"]`);
+            if (field)
+                field.value = input.value;
+        }
+    };
+    const show = async () => {
         const token = ++showSequence;
         showing = true;
         message = "";
         getStyle();
-        setSelected(button);
+        setTriggerExpanded(true);
         let panel = document.getElementById(PANEL_ID);
         if (!panel) {
             panel = document.createElement("section");
             panel.id = PANEL_ID;
             panel.setAttribute("aria-label", "主题");
             panel.addEventListener("click", onPanelClick, true);
-            panel.addEventListener("pointermove", onPanelPointerMove, true);
-            panel.addEventListener("pointerleave", onPanelPointerLeave, true);
             panel.addEventListener("keydown", onPanelKeydown);
             panel.addEventListener("change", onPanelChange);
+            panel.addEventListener("input", onPanelInput);
             document.body.appendChild(panel);
         }
-        positionPanel(panel, nav);
         panel.hidden = false;
-        panel.innerHTML = '<div class="dtm-wrap"><div class="dtm-loading-card"><div class="dtm-loading-copy"><span class="dtm-loading-spinner" aria-hidden="true"></span><span>正在读取主题…</span></div><button class="dtm-close-hit" type="button" data-manager-close aria-label="Close"></button></div></div>';
+        panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-loading-card"><div class="dtm-loading-copy"><span class="dtm-loading-spinner" aria-hidden="true"></span><span>正在读取主题…</span></div>${closeButton("manager")}</div></div>`;
         try {
             const nextState = await call("getState");
             if (!showing || token !== showSequence)
@@ -878,45 +1192,46 @@
         catch (error) {
             if (!showing || token !== showSequence)
                 return;
-            panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1></div><button class="dtm-close-hit" type="button" data-manager-close aria-label="Close"></button></div><div class="dtm-empty">${escapeHtml(error.message || error)}</div></div>`;
+            panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1></div>${closeButton("manager")}</div><div class="dtm-empty">${escapeHtml(error.message || error)}</div></div>`;
         }
     };
-    const hide = () => { showSequence += 1; showing = false; localModalOpen = false; resetLocalDraft(); const panel = document.getElementById(PANEL_ID); if (panel)
+    const hide = () => { showSequence += 1; showing = false; localModalOpen = false; resetLocalDraft(); setTriggerExpanded(false); const panel = document.getElementById(PANEL_ID); if (panel)
         panel.hidden = true; };
     const ensure = () => {
-        const nav = document.querySelector('nav[aria-label="设置"],nav[aria-label="Settings"]');
-        if (!nav) {
-            hide();
-            return false;
-        }
-        let button = nav.querySelector(`button[data-settings-panel-slug="${NAV_SLUG}"]`);
+        document.querySelectorAll(`button[data-settings-panel-slug="${NAV_SLUG}"]`).forEach((button) => button.remove());
+        let button = document.getElementById(TRIGGER_ID);
         if (button && button.dataset.dreamThemeManagerVersion !== VERSION) {
             button.remove();
             button = null;
         }
         if (!button) {
-            const appearance = nav.querySelector('button[data-settings-panel-slug="appearance"],button[aria-label="外观"],button[aria-label="Appearance"]');
-            if (!appearance)
-                return false;
-            button = appearance.cloneNode(true);
-            button.removeAttribute("aria-current");
-            button.dataset.settingsPanelSlug = NAV_SLUG;
-            button.setAttribute("aria-label", "主题");
+            button = document.createElement("button");
+            button.id = TRIGGER_ID;
+            button.type = "button";
+            button.setAttribute("aria-label", "打开主题");
+            button.setAttribute("aria-expanded", showing ? "true" : "false");
             button.dataset.dreamThemeManagerVersion = VERSION;
-            const content = button.firstElementChild || button;
-            content.innerHTML = `${navIcon}<span>主题</span>`;
-            button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); show(button, nav); });
-            appearance.insertAdjacentElement("afterend", button);
-        }
-        if (showing) {
-            const panel = document.getElementById(PANEL_ID);
-            if (panel)
-                positionPanel(panel, nav);
+            button.innerHTML = palette;
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                showing ? hide() : show();
+            }, true);
+            document.body.appendChild(button);
         }
         return true;
     };
     const onDocumentClick = (event) => {
-        const settingsButton = event.target?.closest?.('button[data-settings-panel-slug]');
+        const element = event.target;
+        const closeTarget = element?.closest?.("[data-dtm-close],[data-manager-close],[data-local-theme-close],[data-theme-pet-close],[data-theme-images-close]");
+        const panel = document.getElementById(PANEL_ID);
+        if (closeTarget && panel?.contains(closeTarget)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            runCloseAction(closeTarget);
+            return;
+        }
+        const settingsButton = element?.closest?.('button[data-settings-panel-slug]');
         if (settingsButton && settingsButton.dataset.settingsPanelSlug !== NAV_SLUG)
             hide();
     };
@@ -934,7 +1249,7 @@
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     const timer = setInterval(ensure, 4000);
-    const cleanup = () => { observer.disconnect(); clearInterval(timer); clearTimeout(scheduled); window.removeEventListener(RESPONSE, onResponse); document.removeEventListener("click", onDocumentClick, true); document.getElementById(PANEL_ID)?.remove(); document.getElementById(STYLE_ID)?.remove(); delete window[KEY]; };
+    const cleanup = () => { observer.disconnect(); clearInterval(timer); clearTimeout(scheduled); window.removeEventListener(RESPONSE, onResponse); document.removeEventListener("click", onDocumentClick, true); document.getElementById(PANEL_ID)?.remove(); document.getElementById(TRIGGER_ID)?.remove(); document.getElementById(STYLE_ID)?.remove(); delete window[KEY]; };
     window[KEY] = { ensure, cleanup, observer, timer, version: VERSION };
     ensure();
     return true;

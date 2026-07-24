@@ -15,6 +15,7 @@ import {
   fetchRemoteTheme,
   installAndSelectBundledPet,
   installedPetPreviewDataUrl,
+  installedThemeImagePreviewDataUrls,
   installedThemePreviewDataUrl,
   isPathInside,
   listInstalledThemes,
@@ -30,6 +31,7 @@ import {
   setBaseThemeEnabled,
   stateRootFor,
   themeControlState,
+  updateThemeImageSettings,
   writeLibraries,
   writeThemeDirectory,
 } from "./theme-package.mjs";
@@ -327,6 +329,10 @@ async function handleThemeControl(options, request) {
       : await installedThemePreviewDataUrl(options, key);
     return { key, scope, preview };
   }
+  if (request.command === "getThemeImages") {
+    const key = String(payload.key || "").trim();
+    return installedThemeImagePreviewDataUrls(options, key);
+  }
   if (request.command === "setPaused") {
     await fs.mkdir(stateRoot, { recursive: true });
     if (Boolean(payload.paused)) {
@@ -445,6 +451,24 @@ async function handleThemeControl(options, request) {
     if (active.theme.id === targetTheme.theme.id) {
       await writeThemeDirectory(options.themeDir, withSelection);
       if (selectedBundle) await installAndSelectBundledPet(options, withSelection);
+    }
+    return themeControlState(options);
+  }
+  if (request.command === "updateThemeImages") {
+    const key = safeThemeId(payload.key, "");
+    if (!key || key !== String(payload.key)) throw new Error("无效的主题标识");
+    const directory = path.resolve(savedRoot, key);
+    if (!isPathInside(directory, path.resolve(savedRoot))) throw new Error("主题路径越界");
+    const updated = await updateThemeImageSettings(directory, {
+      defaultImage: payload.defaultImage,
+      display: payload.display,
+      sidebar: payload.sidebar,
+      composer: payload.composer,
+      addedImages: payload.addedImages,
+    });
+    const active = await loadTheme(options.themeDir);
+    if (active.theme.id === updated.theme.id) {
+      await writeThemeDirectory(options.themeDir, updated);
     }
     return themeControlState(options);
   }
