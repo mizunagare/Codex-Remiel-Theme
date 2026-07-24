@@ -147,3 +147,14 @@ html.codex-dream-skin:is(.dream-route-home, .dream-route-task)
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/* Codex mounts two native bottom readability gradients as siblings of the
+   composer. Their hard rectangular bounds look like a black drop shadow over
+   artwork, so let the theme's composer surface own readability by itself. */
+html.codex-dream-skin:is(.dream-route-home, .dream-route-task)
+  main.main-surface .sticky.bottom-0:has(.composer-surface-chrome)
+  [class*="bg-gradient-to-t"][class*="from-token-main-surface-primary"] {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
