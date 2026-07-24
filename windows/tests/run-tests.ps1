@@ -536,6 +536,8 @@ try {
     '.app-shell-main-content-top-fade',
     '.thread-scroll-container .bg-gradient-to-t.from-token-main-surface-primary',
     '--dream-immersive-composer',
+    '--dream-art-fit: cover',
+    'background-size: var(--dream-art-fit)',
     'background-position: var(--dream-art-position)',
     '.dream-home > .dream-home-content',
     '.dream-home-utility',
@@ -550,6 +552,11 @@ try {
     'animation-play-state: paused !important'
   )) {
     if (-not $css.Contains($requiredCss)) { throw "Windows immersive CSS is missing: $requiredCss" }
+  }
+
+  $remielCss = Read-DreamSkinUtf8File -Path (Join-Path $Root 'themes\绝区零 蕾米埃尔\theme.css')
+  if (-not $remielCss.Contains('--dream-art-fit: contain')) {
+    throw 'Remiel must preserve the complete 16:9 artwork instead of cropping it.'
   }
   if ($css.Contains('.dream-home > div:first-child')) {
     throw 'Shared home layout still depends on the first child and can hide the composer after a Codex DOM upgrade.'
