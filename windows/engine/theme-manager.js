@@ -1,7 +1,7 @@
 "use strict";
 (() => {
     const KEY = "__CODEX_DREAM_THEME_MANAGER__";
-    const VERSION = "1.9.4";
+    const VERSION = "1.10.1";
     const BINDING = "__codexDreamThemeControl";
     const RESPONSE = "__codexDreamThemeResponse";
     const STYLE_ID = "codex-dream-theme-manager-style";
@@ -19,12 +19,12 @@
     const gear = `<svg viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M9.6 3.2h4.8l.5 2.2c.7.2 1.3.5 1.9.8l2-1.2 3.4 3.4-1.2 2c.3.6.6 1.2.8 1.9l2.2.5v4.8l-2.2.5c-.2.7-.5 1.3-.8 1.9l1.2 2-3.4 3.4-2-1.2c-.6.3-1.2.6-1.9.8l-.5 2.2H9.6l-.5-2.2c-.7-.2-1.3-.5-1.9-.8l-2 1.2-3.4-3.4 1.2-2c-.3-.6-.6-1.2-.8-1.9L0 17.6v-4.8l2.2-.5c.2-.7.5-1.3.8-1.9l-1.2-2 3.4-3.4 2 1.2c.6-.3 1.2-.6 1.9-.8l.5-2.2Z" fill="currentColor" opacity=".22"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 1.7v3.1M12 19.2v3.1M1.7 12h3.1M19.2 12h3.1M4.7 4.7l2.2 2.2M17.1 17.1l2.2 2.2M19.3 4.7l-2.2 2.2M6.9 17.1l-2.2 2.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
     const closeSvg = `<svg class="dtm-close-icon" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M6.2 6.2 12 12m5.8 5.8L12 12m0 0 5.8-5.8M12 12l-5.8 5.8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>`;
     const css = `
-    #${TRIGGER_ID}{position:fixed;right:116px;top:7px;z-index:10000;display:grid;place-items:center;width:28px;height:28px;margin:0;padding:0;border:1px solid color-mix(in srgb,var(--dream-accent,#6edaf2) 34%,transparent);border-radius:8px;background:color-mix(in oklab,var(--dream-surface-raised,#13212c) 58%,transparent);color:var(--dream-text,#edf7fb);box-shadow:0 8px 22px #0006,inset 0 0 0 1px #ffffff12;backdrop-filter:blur(10px);cursor:pointer;pointer-events:auto!important;-webkit-app-region:no-drag}
+    #${TRIGGER_ID}{position:fixed;right:136px;top:45px;z-index:10000;display:grid;place-items:center;width:28px;height:28px;margin:0;padding:0;border:1px solid color-mix(in srgb,var(--dream-accent,#6edaf2) 34%,transparent);border-radius:8px;background:color-mix(in oklab,var(--dream-surface-raised,#13212c) 58%,transparent);color:var(--dream-text,#edf7fb);box-shadow:0 8px 22px #0006,inset 0 0 0 1px #ffffff12;backdrop-filter:blur(10px);cursor:pointer;pointer-events:auto!important;-webkit-app-region:no-drag}
     #${TRIGGER_ID}:hover,#${TRIGGER_ID}[aria-expanded="true"]{border-color:var(--dream-accent,#6edaf2);background:color-mix(in srgb,var(--dream-accent,#6edaf2) 18%,var(--dream-surface-raised,#13212c));box-shadow:0 0 0 3px color-mix(in srgb,var(--dream-accent,#6edaf2) 12%,transparent),0 10px 26px #0008}
     #${TRIGGER_ID} svg{display:block;width:17px;height:17px}
     #${PANEL_ID}{--dream-manager-accent:var(--dream-accent,#6edaf2);--dtm-surface:var(--dream-surface,var(--main-surface-primary,#0d151f));--dtm-raised:var(--dream-surface-raised,var(--main-surface-secondary,#13212c));--dtm-text:var(--dream-text,var(--text-primary,#edf7fb));--dtm-muted:var(--dream-text-muted,var(--text-secondary,#9bb0bc));--dtm-line:var(--dream-line,var(--border-light,#263642));position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-start;justify-content:center;overflow:auto;background:#02070d99;color:var(--dtm-text);padding:58px 24px 28px;box-sizing:border-box;font-family:inherit;backdrop-filter:blur(10px)}
     #${PANEL_ID}[hidden]{display:none!important}
-    #${PANEL_ID} *{box-sizing:border-box} #${PANEL_ID} .dtm-wrap{width:min(1080px,calc(100vw - 48px));max-height:calc(100vh - 86px);overflow:auto;margin:0 auto;padding:28px 34px 42px;border:1px solid var(--dtm-line);border-radius:20px;background:color-mix(in oklab,var(--dtm-surface) 96%,transparent);box-shadow:0 24px 90px #000c;backdrop-filter:blur(18px)}
+    #${PANEL_ID} *{box-sizing:border-box;-webkit-app-region:no-drag} #${PANEL_ID} .dtm-wrap{width:min(1080px,calc(100vw - 48px));max-height:calc(100vh - 86px);overflow:auto;margin:0 auto;padding:28px 34px 42px;border:1px solid var(--dtm-line);border-radius:20px;background:color-mix(in oklab,var(--dtm-surface) 96%,transparent);box-shadow:0 24px 90px #000c;backdrop-filter:blur(18px)}
     #${PANEL_ID} .dtm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:24px}
     #${PANEL_ID} h1{font-size:26px;line-height:1.2;margin:0 0 8px;font-weight:650} #${PANEL_ID} h2{font-size:17px;margin:0 0 12px}
     #${PANEL_ID} p{margin:0;color:var(--dtm-muted);font-size:13px;line-height:1.55}
@@ -100,9 +100,12 @@
     #${PANEL_ID} .dtm-dialog-head>div:first-child{min-width:0;flex:1;pointer-events:auto}
     #${PANEL_ID} .dtm-dialog-head h2{margin:0 0 6px}
     #${PANEL_ID} .dtm-dialog-close{width:32px;height:32px;padding:0;font-size:19px;line-height:1}
-    #${PANEL_ID} .dtm-close-hit{appearance:none;position:relative;display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;min-width:52px;min-height:52px;margin:-5px;padding:0;border:1px solid var(--dtm-line);border-radius:16px;background:color-mix(in oklab,var(--dtm-raised) 90%,transparent);color:var(--dtm-text);cursor:pointer;user-select:none;touch-action:manipulation;z-index:1000;pointer-events:auto!important}
-    #${PANEL_ID} .dtm-close-icon{display:block;width:24px;height:24px;pointer-events:none}
-    #${PANEL_ID} .dtm-close-hit:empty::before{content:"";display:block;width:24px;height:24px;background:linear-gradient(45deg,transparent calc(50% - 1.05px),currentColor calc(50% - 1.05px),currentColor calc(50% + 1.05px),transparent calc(50% + 1.05px)),linear-gradient(-45deg,transparent calc(50% - 1.05px),currentColor calc(50% - 1.05px),currentColor calc(50% + 1.05px),transparent calc(50% + 1.05px));pointer-events:none}
+    #${PANEL_ID} .dtm-close-hit{appearance:none;position:relative;display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;min-width:40px;min-height:40px;margin:0;padding:0;border:1px solid var(--dtm-line);border-radius:12px;background:color-mix(in oklab,var(--dtm-raised) 90%,transparent);color:var(--dtm-text);cursor:pointer;user-select:none;touch-action:manipulation;z-index:1000;pointer-events:auto!important}
+    #${PANEL_ID} .dtm-close-icon{display:block;width:18px;height:18px;pointer-events:none}
+    #${PANEL_ID} .dtm-close-hit:empty::before{content:"";display:block;width:18px;height:18px;background:linear-gradient(45deg,transparent calc(50% - 1.05px),currentColor calc(50% - 1.05px),currentColor calc(50% + 1.05px),transparent calc(50% + 1.05px)),linear-gradient(-45deg,transparent calc(50% - 1.05px),currentColor calc(50% - 1.05px),currentColor calc(50% + 1.05px),transparent calc(50% + 1.05px));pointer-events:none}
+    #${PANEL_ID} .dtm-dialog-head .dtm-close-hit{flex-basis:34px;width:34px;height:34px;min-width:34px;min-height:34px;border-radius:10px}
+    #${PANEL_ID} .dtm-dialog-head .dtm-close-icon{width:16px;height:16px}
+    #${PANEL_ID} .dtm-dialog-head .dtm-close-hit:empty::before{width:16px;height:16px}
     #${PANEL_ID} .dtm-close-hit:hover{border-color:var(--dream-manager-accent,#6edaf2);background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 16%,var(--dtm-raised));box-shadow:0 0 0 3px color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 12%,transparent),0 10px 24px #0005}
     #${PANEL_ID} .dtm-close-hit:active{transform:translateY(1px);background:color-mix(in srgb,var(--dream-manager-accent,#6edaf2) 24%,var(--dtm-raised))}
     #${PANEL_ID} .dtm-close-hit:focus-visible{outline:2px solid var(--dream-manager-accent,#6edaf2);outline-offset:2px}
@@ -309,6 +312,8 @@
     const pending = new Map();
     let sequence = 0;
     let state = null;
+    let stateLoadPromise = null;
+    let stateLoadIncludesPets = false;
     let message = "";
     let showing = false;
     let showSequence = 0;
@@ -325,6 +330,7 @@
     let localIconsJsonFile = null;
     let petPickerTheme = null;
     let imageSettingsTheme = null;
+    let imageSettingsLoading = false;
     let imageSettingsError = "";
     let imageSettingsFiles = [];
     let systemFontsLoaded = false;
@@ -462,9 +468,9 @@
         }
         return btoa(binary);
     };
-    const call = (command, payload = {}) => new Promise((resolve, reject) => {
+    const call = (command, payload = {}, timeoutMs = 15000) => new Promise((resolve, reject) => {
         const requestId = `theme-${Date.now()}-${++sequence}`;
-        const timer = setTimeout(() => { pending.delete(requestId); reject(new Error("主题服务响应超时")); }, 15000);
+        const timer = setTimeout(() => { pending.delete(requestId); reject(new Error("主题服务响应超时，请重试读取")); }, timeoutMs);
         pending.set(requestId, { resolve, reject, timer });
         try {
             if (typeof window[BINDING] !== "function")
@@ -493,6 +499,18 @@
         catch { }
     };
     window.addEventListener(RESPONSE, onResponse);
+    const loadState = (includePets = activeTab === "pets") => {
+        if (stateLoadPromise && (!includePets || stateLoadIncludesPets))
+            return stateLoadPromise;
+        stateLoadIncludesPets = includePets;
+        if (!stateLoadPromise || includePets) {
+            stateLoadPromise = call("getState", { includePets }, 45000).finally(() => {
+                stateLoadPromise = null;
+                stateLoadIncludesPets = false;
+            });
+        }
+        return stateLoadPromise;
+    };
     const getStyle = () => {
         let style = document.getElementById(STYLE_ID);
         if (!style) {
@@ -690,6 +708,9 @@
     const imageSettingsDialogHtml = () => {
         if (!imageSettingsTheme)
             return "";
+        if (imageSettingsLoading) {
+            return `<div class="dtm-modal-layer" role="presentation"><button class="dtm-modal-backdrop" type="button" data-theme-images-close aria-label="关闭弹窗"></button><section class="dtm-dialog" role="dialog" aria-modal="true" aria-labelledby="dtm-images-title"><div class="dtm-dialog-head"><div><h2 id="dtm-images-title">图片与显示设置</h2><p>${escapeHtml(imageSettingsTheme.name)} 的主题包配置正在读取，读取完成后再显示可编辑表单。</p></div><button class="dtm-close-hit" type="button" data-theme-images-close aria-label="关闭"></button></div><div class="dtm-dialog-body"><div class="dtm-loading-card"><div class="dtm-loading-copy"><span class="dtm-loading-spinner" aria-hidden="true"></span><span>正在读取该主题自己的 theme.json 数据…</span></div></div></div></section></div>`;
+        }
         const display = imageSettingsTheme.display || {};
         const rotation = display.rotation || {};
         const position = splitImagePosition(display.position || "auto");
@@ -770,7 +791,7 @@
         applyThemePreviewImages(panel);
         applyPetPreviewStyles(panel);
     };
-    const refreshState = async () => { state = await call("getState"); if (showing)
+    const refreshState = async (includePets = activeTab === "pets") => { state = await loadState(includePets); if (showing)
         render(); };
     const act = async (operation, success) => {
         message = "处理中…";
@@ -804,6 +825,7 @@
         }
         if (closeKind === "themeImages" || closeTarget.hasAttribute("data-theme-images-close")) {
             imageSettingsTheme = null;
+            imageSettingsLoading = false;
             imageSettingsError = "";
             imageSettingsFiles = [];
             render();
@@ -826,6 +848,8 @@
         if (target.dataset.managerTab) {
             activeTab = target.dataset.managerTab === "pets" ? "pets" : "themes";
             render();
+            if (activeTab === "pets" && state && (!Array.isArray(state.pets) || state.pets.length === 0))
+                void refreshState(true);
         }
         else if (target.hasAttribute("data-local-theme-open")) {
             resetLocalDraft();
@@ -835,6 +859,7 @@
         }
         else if (target.dataset.themeImagesEdit) {
             imageSettingsTheme = state?.themes?.find((theme) => theme.key === target.dataset.themeImagesEdit) || null;
+            imageSettingsLoading = Boolean(imageSettingsTheme);
             imageSettingsError = "";
             imageSettingsFiles = [];
             localModalOpen = false;
@@ -843,15 +868,23 @@
             if (imageSettingsTheme?.key) {
                 const key = imageSettingsTheme.key;
                 call("getThemeImages", { key }).then((result) => {
-                    if (!result?.images?.length || imageSettingsTheme?.key !== key)
+                    if (!result || imageSettingsTheme?.key !== key)
                         return;
                     imageSettingsTheme = {
                         ...imageSettingsTheme,
-                        defaultImage: result.defaultImage || imageSettingsTheme.defaultImage,
-                        images: result.images,
+                        ...result,
+                        key: result.key || key,
+                        images: result.images || imageSettingsTheme.images || [],
                     };
+                    imageSettingsLoading = false;
                     render();
-                }).catch(() => { });
+                }).catch((error) => {
+                    if (imageSettingsTheme?.key !== key)
+                        return;
+                    imageSettingsLoading = false;
+                    imageSettingsError = error?.message || String(error);
+                    render();
+                });
             }
         }
         else if (target.dataset.themePetEdit) {
@@ -900,7 +933,9 @@
         else if (target.hasAttribute("data-official"))
             act(() => call("setPaused", { paused: !state.paused }), state.paused ? "主题已重新启用" : "已恢复 Codex 官方外观");
         else if (target.hasAttribute("data-refresh"))
-            act(() => call("getState"), "主题状态已刷新");
+            act(() => loadState(), "主题状态已刷新");
+        else if (target.hasAttribute("data-retry-state"))
+            show();
         else if (target.dataset.themeUse)
             act(() => call("useTheme", { key: target.dataset.themeUse }), "主题已启用");
         else if (target.dataset.bundledInstall)
@@ -908,6 +943,11 @@
         else if (target.dataset.themeSettingsInit) {
             const key = target.dataset.themeSettingsInit;
             const theme = imageSettingsTheme;
+            imageSettingsTheme = null;
+            imageSettingsLoading = false;
+            imageSettingsFiles = [];
+            imageSettingsError = "";
+            render();
             act(async () => call("updateThemeImages", {
                 key,
                 defaultImage: theme?.defaultImage || "",
@@ -943,6 +983,7 @@
             const composerFontSize = panel.querySelector("[data-theme-composer-font-size]")?.value || "default";
             const filesToAdd = imageSettingsFiles;
             imageSettingsTheme = null;
+            imageSettingsLoading = false;
             imageSettingsFiles = [];
             imageSettingsError = "";
             render();
@@ -952,7 +993,7 @@
                     label: file.name.replace(/\.[^.]+$/, ""),
                     base64: await fileToBase64(file),
                 })));
-                const result = await call("updateThemeImages", {
+                return call("updateThemeImages", {
                     key: target.dataset.themeImagesSave,
                     defaultImage,
                     addedImages,
@@ -960,7 +1001,6 @@
                     sidebar: { background: sidebarBackground, fontFamily: sidebarFontFamily, textColor: sidebarTextColor, iconColor: sidebarIconColor, fontSize: sidebarFontSize, fontWeight: sidebarFontWeight, textBrightness: sidebarTextBrightness },
                     composer: { width: composerWidth, height: composerHeight, fontSize: composerFontSize },
                 });
-                return result;
             }, "主题图片设置已保存");
         }
         else if (target.hasAttribute("data-local-theme-create")) {
@@ -1181,9 +1221,9 @@
             document.body.appendChild(panel);
         }
         panel.hidden = false;
-        panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-loading-card"><div class="dtm-loading-copy"><span class="dtm-loading-spinner" aria-hidden="true"></span><span>正在读取主题…</span></div>${closeButton("manager")}</div></div>`;
+        panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1><p>主题管理工具已加载；主题和宠物列表会在后台读取完成后自动填充。</p></div><div class="dtm-row"><div class="dtm-status"><span class="dtm-dot"></span>正在读取主题状态 · 异步加载</div>${closeButton("manager")}</div></div><div class="dtm-row"><button class="dtm-button" type="button" disabled>正在读取</button><button class="dtm-button" type="button" disabled>立即刷新</button><p>基础页面先显示，列表读取完成后会自动更新；关闭按钮仍可立即使用。</p></div><div class="dtm-tabs" role="tablist" aria-label="主题内容"><button class="dtm-tab" role="tab" aria-selected="${activeTab === "themes"}" data-manager-tab="themes">主题</button><button class="dtm-tab" role="tab" aria-selected="${activeTab === "pets"}" data-manager-tab="pets">宠物</button></div><section class="dtm-section"><h2>${activeTab === "pets" ? "主题宠物" : "主题"}</h2><div class="dtm-loading-card"><div class="dtm-loading-copy"><span class="dtm-loading-spinner" aria-hidden="true"></span><span>正在读取${activeTab === "pets" ? "宠物" : "主题"}列表…</span></div></div></section></div>`;
         try {
-            const nextState = await call("getState");
+            const nextState = await loadState();
             if (!showing || token !== showSequence)
                 return;
             state = nextState;
@@ -1192,12 +1232,18 @@
         catch (error) {
             if (!showing || token !== showSequence)
                 return;
-            panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1></div>${closeButton("manager")}</div><div class="dtm-empty">${escapeHtml(error.message || error)}</div></div>`;
+            panel.innerHTML = `<div class="dtm-wrap"><div class="dtm-head"><div><h1>主题</h1><p>主题服务这次没有及时返回，可能是正在扫描主题图片或宠物资源。</p></div><div class="dtm-row">${closeButton("manager")}</div></div><div class="dtm-empty"><p>${escapeHtml(error.message || error)}</p><div class="dtm-row" style="margin-top:12px"><button class="dtm-button dtm-button-primary" type="button" data-retry-state>重试读取</button><button class="dtm-button" type="button" data-manager-close>关闭</button></div></div></div>`;
         }
     };
-    const hide = () => { showSequence += 1; showing = false; localModalOpen = false; resetLocalDraft(); setTriggerExpanded(false); const panel = document.getElementById(PANEL_ID); if (panel)
+    const hide = () => { showSequence += 1; showing = false; localModalOpen = false; imageSettingsLoading = false; resetLocalDraft(); setTriggerExpanded(false); const panel = document.getElementById(PANEL_ID); if (panel)
         panel.hidden = true; };
     const ensure = () => {
+        if (/avatar-overlay/i.test(location.href)) {
+            document.getElementById(TRIGGER_ID)?.remove();
+            document.getElementById(PANEL_ID)?.remove();
+            return false;
+        }
+        getStyle();
         document.querySelectorAll(`button[data-settings-panel-slug="${NAV_SLUG}"]`).forEach((button) => button.remove());
         let button = document.getElementById(TRIGGER_ID);
         if (button && button.dataset.dreamThemeManagerVersion !== VERSION) {
@@ -1235,6 +1281,17 @@
         if (settingsButton && settingsButton.dataset.settingsPanelSlug !== NAV_SLUG)
             hide();
     };
+    const onDocumentPointerDown = (event) => {
+        const element = event.target;
+        const closeTarget = element?.closest?.("[data-dtm-close],[data-manager-close],[data-local-theme-close],[data-theme-pet-close],[data-theme-images-close]");
+        const panel = document.getElementById(PANEL_ID);
+        if (!closeTarget || !panel?.contains(closeTarget))
+            return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        runCloseAction(closeTarget);
+    };
+    document.addEventListener("pointerdown", onDocumentPointerDown, true);
     document.addEventListener("click", onDocumentClick, true);
     let scheduled = null;
     const observer = new MutationObserver((records) => {
@@ -1249,7 +1306,7 @@
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     const timer = setInterval(ensure, 4000);
-    const cleanup = () => { observer.disconnect(); clearInterval(timer); clearTimeout(scheduled); window.removeEventListener(RESPONSE, onResponse); document.removeEventListener("click", onDocumentClick, true); document.getElementById(PANEL_ID)?.remove(); document.getElementById(TRIGGER_ID)?.remove(); document.getElementById(STYLE_ID)?.remove(); delete window[KEY]; };
+    const cleanup = () => { observer.disconnect(); clearInterval(timer); clearTimeout(scheduled); window.removeEventListener(RESPONSE, onResponse); document.removeEventListener("pointerdown", onDocumentPointerDown, true); document.removeEventListener("click", onDocumentClick, true); document.getElementById(PANEL_ID)?.remove(); document.getElementById(TRIGGER_ID)?.remove(); document.getElementById(STYLE_ID)?.remove(); delete window[KEY]; };
     window[KEY] = { ensure, cleanup, observer, timer, version: VERSION };
     ensure();
     return true;
