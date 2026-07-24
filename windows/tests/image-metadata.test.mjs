@@ -17,10 +17,10 @@ const featured = await fs.readFile(featuredPath);
 const helper = path.join(windowsRoot, "scripts", "image-metadata.mjs");
 
 assert.deepEqual(readImageMetadata(featured, ".jpg"), {
-  width: 2560,
-  height: 1440,
-  ratio: 2560 / 1440,
-  wide: true,
+  width: 6240,
+  height: 3664,
+  ratio: 6240 / 3664,
+  wide: false,
   aspect: "wide",
   taskMode: "ambient",
 });
@@ -44,6 +44,16 @@ assert.equal(MAX_IMAGE_PIXELS, 50_000_000);
 assert.equal(classifyImageDimensions({ width: 10000, height: 6000 }), null);
 assert.equal(classifyImageDimensions({ width: 20000, height: 1 }), null);
 assert.equal(classifyImageDimensions({ width: 2560.5, height: 1440 }), null);
+
+const gifHeader = Buffer.from("47494638396102000300800000000000ffffff2c00000000020003000002024401003b", "hex");
+assert.deepEqual(readImageMetadata(gifHeader, ".gif"), {
+  width: 2,
+  height: 3,
+  ratio: 2 / 3,
+  wide: false,
+  aspect: "portrait",
+  taskMode: "ambient",
+});
 
 const oversizedPngHeader = Buffer.alloc(24);
 Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(oversizedPngHeader);

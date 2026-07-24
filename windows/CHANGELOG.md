@@ -1,5 +1,47 @@
 # Windows Changelog
 
+## Unreleased
+
+- Split theme package loading, validation, library catalogs, local theme creation, and pet binding from `scripts/injector.mjs` into `scripts/theme-package.mjs`; the injector now focuses on CDP connection, runtime injection, watch/reload, screenshots, and verification.
+- Theme and pet cards now show sprite previews directly; duplicate installed theme directories with the same theme ID are deleted from the local store, preferring current bundled packages over legacy presets.
+- Pet previews now follow Codex's 192×208 frame atlas layout (`1536×1872` v1 / `1536×2288` v2) instead of guessing a cropped grid.
+- Pet selection now retries short-lived `config.toml` write races caused by Codex updating the same file.
+- Theme cards now show the bound pet as an image-only control; clicking it opens a pet picker and writes the selected pet back to that theme package configuration.
+- The theme manager no longer shows GitHub repository or external theme-library install forms; the page focuses on bundled themes, local custom themes, and pet bindings.
+- Local custom themes can now set theme colors, which are written into the generated theme's own `theme.css`.
+- Installed theme pet previews can fall back to `~/.codex/pets/<pet-id>` when an older global Dream Skin pet cache is missing or corrupt.
+- Local custom colors now use preset swatches, transparent choices, and native color pickers instead of plain code fields.
+- Local custom icons can be picked from a bundled default icon library or added manually by key with an SVG file.
+- Background images now also accept GIF files through the manager, tray picker, and shared validation path.
+- Shared runtime styles now theme Codex floating review/status pills, model menus, attachment/source pickers, and task hover cards through the common `--dream-*` variables.
+- Token-based Codex review and summary surfaces (`bg-token-dropdown-background`, rounded token panels, thread summary slots) now inherit the shared floating surface palette.
+- The right-side thread summary panel now has dedicated shared styles for its container, sticky headers, separators, item groups, and hoverable source/output rows.
+- The Codex right app-shell sidebar (`right-panel`) now shares the chat page's immersive palette for its toolbar, sticky launcher header, quick-action option rows, hover states, text tokens, and shortcut key badges.
+- Theme-store initialization now refreshes materialized bundled themes with the latest shared framework CSS/runtime instead of leaving an old active `theme.css` cached.
+- Auto-heal Guard now restarts a normally launched Codex once per cooldown window to reopen it with the Dream Skin CDP endpoint; use `-NoRestartExisting` to keep the old manual-launch behavior.
+- Tray status now shows the current endpoint/injector state plus recent Guard, injector, and error log lines instead of an empty status-only menu.
+- Theme manager pet badges are smaller, and close controls now use a higher-layer full-button hit area with a decorative-only X so the whole tile hovers and closes.
+- Theme manager close controls now also use coordinate-based hit testing so the whole button rectangle hovers/closes even if the SVG or inner layers receive the event target.
+- Task main-surface side panels now treat large `bg-token-main-surface-*` regions as transparent/themed containers so right-side tool panes do not remain flat gray.
+- Fixed the split theme-package module by importing `execFile`, preventing the injector from exiting when it installs or selects a bundled pet.
+- Theme manager theme and pet previews are now lazy-loaded by ID, reducing initial page load size; the loading screen can be closed, and file-picker rows now keep labels/status on the left with actions on the right.
+- Theme packages now use v4 single-manifest metadata: `theme.json` contains icons and install metadata; newly written themes no longer create separate `icons.json` or `install.json` files, while old v3 packages remain readable.
+
+## 1.4.0 — 2026-07-23
+
+- 修复主题渲染器版本与注入器版本强绑定导致的验证失败和反复重启；验证改用框架自有协议标记。
+- 自动修复守护不再传递强制重启权限；普通 Codex 会话只提示手动启动，连续三次修复失败后自动熔断。
+- 主题包升级到 v3：每个主题拥有声明式 `install.json` 和独立 `icons.json`，公共引擎不再内置主题图标。
+- 宠物包移动到项目根目录 `pets/`，主题只通过 ID 绑定；稳定运行目录安装器同步复制根目录宠物库。
+- 默认主题由各主题的安装清单声明并自动发现，移除 PowerShell 与 Node 加载器中的玄翎目录硬编码。
+- 修复新版 Codex 使用 `div.animate-spin` 时父级透明度把主题执行动画一起隐藏的问题。
+- 新增本地自定义主题另存：可选择背景图片并用本机 `icons.json` 覆盖图标，生成主题标记为仅本地。
+- 新增 TypeScript 构建，主题管理器以 `windows/src/theme-manager.ts` 维护并编译为运行时 JS。
+- 本地自定义入口改为主题卡片与弹窗，支持选择背景、逐项选择 SVG 图标或导入 `icons.json`。
+- 重构本地主题弹窗为固定头尾、内容滚动的分区布局；全部图标改为带真实预览、名称、键名和覆盖来源的独立表单项。
+- 将玄翎与蕾米埃尔重复的设置页适配、布局、动画和渲染逻辑提取到公共框架；主题目录只保留色板和资源配置。
+- Codex 全部设置页面现在继承当前主题的背景、半透明面板、边框、输入框和强调色。
+
 ## 1.3.4 — 2026-07-17
 
 - 重绘玄鸟小图标：移除容易被看成双腿的分叉线条，改为向后收束的三片实心尾羽，并补充头翎轮廓。

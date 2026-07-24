@@ -24,17 +24,16 @@ Codex Desktop 独立主题管理工具，并内置《绝区零》蕾米埃尔主
 windows/themes/绝区零 蕾米埃尔/
 ├─ theme.json
 ├─ theme.css
-├─ theme.js
 └─ background.jpg
 ```
 
-蕾米埃尔主题绑定独立的 Codex v2 宠物包 `windows/pets/remiel-switch/`。仓库或本地主题库换机安装后，启用主题会自动安装并选中同一只宠物；不会删除用户已有的其他宠物设置。
+共享布局和注入逻辑位于 `windows/engine/theme-base.css` 与 `windows/engine/theme-runtime.js`；蕾米埃尔主题目录只保存调色板、内联图标和背景资源。主题绑定独立的 Codex v2 宠物包 `pets/remiel-switch/`。仓库或本地主题库换机安装后，启用主题会自动安装并选中同一只宠物；不会删除用户已有的其他宠物设置。
 
 每个主题是完整、互相隔离的代码包。详细格式见 [`windows/THEME_FORMAT.md`](windows/THEME_FORMAT.md)。
 
 ## 热重载
 
-注入器会监听当前活动主题的 `theme.json`、CSS、JS 和图片。保存文件后会在约 120 ms 的稳定窗口后重新校验并注入，无需重启 Codex；文件监听不可用时自动回退到轮询校验。主题管理页自身也支持热重载。
+注入器会监听当前活动主题的 `theme.json`、CSS、共享运行时和图片。保存文件后会在约 120 ms 的稳定窗口后重新校验并注入，无需重启 Codex；文件监听不可用时自动回退到轮询校验。主题管理页自身也支持热重载。
 
 ## GitHub 主题仓库
 
