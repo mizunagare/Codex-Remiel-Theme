@@ -10,6 +10,9 @@
     "renderer": "theme.js"
   },
   "image": "background.jpg",
+  "pet": {
+    "id": "remiel-switch"
+  },
   "brandSubtitle": "NEW ERIDU · REMIEL",
   "tagline": "以星芒校准心跳，让灵感抵达指尖。",
   "projectPrefix": "选择项目 · ",

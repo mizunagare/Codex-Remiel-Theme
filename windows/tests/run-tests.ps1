@@ -371,7 +371,7 @@ try {
   }
 
   $themeStateRoot = Join-Path $temporaryRoot 'theme-state'
-  $bundledTheme = Join-Path $Root 'themes\remiel-seraph-system-v1'
+  $bundledTheme = Join-Path $Root 'themes\绝区零 蕾米埃尔'
   $themePaths = Initialize-DreamSkinThemeStore -SkillRoot $Root -StateRoot $themeStateRoot
   $initialTheme = Read-DreamSkinTheme -ThemeDirectory $themePaths.Active
   if ($initialTheme.Theme.id -cne 'remiel-seraph-system' -or
@@ -496,9 +496,9 @@ try {
     '.dream-home-utility',
     '.dream-home-utility-present .dream-home .composer-surface-chrome',
     '.dream-route-task:is(.dream-task-ambient, .dream-task-banner)',
-    '.composer-surface-chrome .dream-xuan-icon',
+    '.composer-surface-chrome .dream-remiel-icon',
     'position: fixed !important',
-    '.dream-permission-menu .dream-permission-item .dream-xuan-icon-seraph',
+    '.dream-permission-menu .dream-permission-item .dream-remiel-icon-seraph',
     'html.codex-dream-skin.dream-window-dragging *',
     'animation-play-state: paused !important'
   )) {
@@ -594,8 +594,10 @@ try {
   foreach ($requiredManagerBehavior in @(
     'data-settings-panel-slug', 'dream-theme-manager', '还原官方外观',
     'addLibrary', 'addRepository', 'getCatalog', 'installLibraryTheme',
-    '主题宠物', 'selectPet', '已选择并随主题保存', '热重载已开启',
-    '可安装主题', 'installBundledTheme', '安装主题'
+    '主题宠物', 'selectPet', '已绑定', '热重载已开启',
+    'installBundledTheme', '安装主题', 'dtm-preview', '<img src="${escapeHtml(preview)}"',
+    'dtm-tabs', 'data-manager-tab="themes"', 'data-manager-tab="pets"',
+    'installedThemeIds', '!installedThemeIds.has(theme.id)', 'dtm-card-line', 'dtm-card-main'
   )) {
     if (-not $managerSource.Contains($requiredManagerBehavior)) {
       throw "Independent theme manager behavior is missing: $requiredManagerBehavior"
@@ -609,15 +611,26 @@ try {
       throw "Update auto-heal behavior is missing: $requiredGuardBehavior"
     }
   }
-  if (-not $css.Contains('dream-xuanniao-orbit') -or
+  if (-not $css.Contains('dream-remiel-orbit') -or
     -not $css.Contains('top: -1px') -or
     -not $rendererSource.Contains('document.querySelectorAll(SPINNER_SELECTOR)') -or
     -not $rendererSource.Contains('aside.app-shell-left-panel svg')) {
-    throw 'The global Xuanniao orbit spinner is missing or still scoped to the sidebar.'
+    throw 'The global Remiel orbit spinner is missing or still scoped to the sidebar.'
   }
-  if ($initialTheme.Theme.PSObject.Properties.Name -contains 'pet' -or
-    (Test-Path -LiteralPath (Join-Path $bundledTheme 'pets'))) {
-    throw 'The Remiel theme unexpectedly bundles a pet and can add avoidable animation load.'
+  $bundledPet = Join-Path $Root 'pets\remiel-switch'
+  $bundledPetManifestPath = Join-Path $bundledPet 'pet.json'
+  if (-not (Test-Path -LiteralPath $bundledPetManifestPath -PathType Leaf)) {
+    throw 'The Remiel package no longer carries its selected v2 pet package in the independent pets folder.'
+  }
+  $bundledThemeManifest = Get-Content -LiteralPath (Join-Path $bundledTheme 'theme.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+  if ($bundledThemeManifest.pet.id -ne 'remiel-switch' -or $bundledThemeManifest.pet.directory) {
+    throw 'The Remiel theme must bind pets by id without nesting a pet directory inside themes.'
+  }
+  $bundledPetManifest = Get-Content -LiteralPath $bundledPetManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+  if ($bundledPetManifest.id -ne 'remiel-switch' -or
+    $bundledPetManifest.spriteVersionNumber -ne 2 -or
+    -not (Test-Path -LiteralPath (Join-Path $bundledPet $bundledPetManifest.spritesheetPath) -PathType Leaf)) {
+    throw 'The Remiel theme bundled pet is not the approved remiel-switch v2 package.'
   }
 
   $packageRoot = Split-Path -Parent $Root

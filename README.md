@@ -1,55 +1,57 @@
 # Codex Remiel Theme
 
-Codex Desktop 独立主题管理工具，并内置《绝区零》蕾米埃尔风格的「星芒圣翼」主题。主题背景、按钮图标、加载动画和页面适配全部封装在独立主题目录中；公共引擎只负责安装、切换、热重载和恢复官方外观。
+Codex Desktop 独立主题管理工具，并内置《绝区零》蕾米埃尔主题。主题、星芒按钮图标、轻量加载动画、深浅色页面适配和所选宠物均封装在独立目录中；公共引擎只负责安装、切换、热重载和恢复官方外观。
 
-> 非 OpenAI 或游戏官方项目。本仓库不包含 Codex 官方安装包，也不修改 `WindowsApps`、`app.asar` 或官方二进制文件。角色及相关名称权利归各自权利人所有。
+> 非 OpenAI 或米哈游官方项目。主题壁纸为同人视觉，不包含官方安装包或官方二进制文件。
 
 ## 一键安装
 
 下载仓库后双击 `安装主题工具.cmd`。安装器会：
 
-- 将稳定运行文件复制到 `%LOCALAPPDATA%\CodexDreamSkin\runtime`；
-- 在 Codex 的 `设置 → 主题` 中安装主题管理页；
-- 创建桌面和开始菜单的 `Codex 主题` 启动入口；
-- 保留恢复官方外观入口，并在 Codex 更新后重新匹配已注册的 Store 包；
-- 首次启动保持官方外观，由你在主题页安装并启用蕾米埃尔主题。
+- 将运行文件复制到 `%LOCALAPPDATA%\CodexDreamSkin\runtime`；
+- 只安装 `设置 → 主题` 管理页，首次启动保持 Codex 官方外观；
+- 蕾米埃尔主题在主题页中点击“安装主题”，随后再启用；
+- 创建桌面和开始菜单的 `Codex 主题` 入口；
+- 首次启用时明确询问是否重启正在运行的 Codex；
+- 安装自动恢复守护，在 Microsoft Store 更新后重新匹配已注册的 Codex 包；
+- 保留 `设置 → 主题 → 还原官方外观` 和桌面完整恢复入口。
 
-旧式兼容入口 `安装蕾米埃尔主题.cmd` 会安装主题管理页并打开 Codex，推荐优先使用 `安装主题工具.cmd`。
+安装器不修改 `WindowsApps`、`app.asar` 或 Codex 官方文件，只连接 `127.0.0.1` 上的本机 CDP 会话。
 
 ## 主题目录
 
 ```text
-windows/themes/remiel-seraph-system-v1/
-├── theme.json
-├── theme.css
-├── theme.js
-└── background.jpg
+windows/themes/绝区零 蕾米埃尔/
+├─ theme.json
+├─ theme.css
+├─ theme.js
+└─ background.jpg
 ```
 
-主题使用粉红、星紫、珍珠白与深梅色构成可读表面；人物位于右侧，左侧保留项目和对话阅读区。按钮图标统一为星芒、机械圣翼和菱晶语言，发送与加载状态使用低成本旋转动画。
+蕾米埃尔主题绑定独立的 Codex v2 宠物包 `windows/pets/remiel-switch/`。仓库或本地主题库换机安装后，启用主题会自动安装并选中同一只宠物；不会删除用户已有的其他宠物设置。
 
-主题不捆绑宠物，避免额外精灵动画与主题背景同时运行造成性能压力。已有 Codex 宠物不会被删除或修改。
-
-## GitHub 主题库
-
-仓库根目录的 [`theme-library.json`](theme-library.json) 是公开主题索引。在 Codex 的 `设置 → 主题 → 从 GitHub 仓库安装` 中粘贴本仓库 URL，即可读取并安装主题。
-
-远程主题包含可执行 JavaScript，只应安装可信来源。索引仅支持公开 HTTPS GitHub 仓库。
+每个主题是完整、互相隔离的代码包。详细格式见 [`windows/THEME_FORMAT.md`](windows/THEME_FORMAT.md)。
 
 ## 热重载
 
-注入器会监听当前活动主题的 JSON、CSS、JS 和图片。保存文件后会重新校验并注入，无需重启 Codex；文件监听不可用时自动回退到轮询校验。
+注入器会监听当前活动主题的 `theme.json`、CSS、JS 和图片。保存文件后会在约 120 ms 的稳定窗口后重新校验并注入，无需重启 Codex；文件监听不可用时自动回退到轮询校验。主题管理页自身也支持热重载。
+
+## GitHub 主题仓库
+
+仓库根目录的 [`theme-library.json`](theme-library.json) 是主题索引。在 Codex 的 `设置 → 主题 → 从 GitHub 仓库安装` 中粘贴本仓库 URL，即可读取并安装主题。仅支持公开 HTTPS GitHub 仓库，远程主题包含可执行 JS，请只添加可信来源。
+
+## 主题宠物
+
+主题页会读取 `~/.codex/pets` 下符合 `spriteVersionNumber: 2` 的 Codex 原生宠物包。选择后主题只保存宠物 ID 绑定，宠物包保存在独立的 `pets/` 目录；该主题在另一台主机安装并启用时，会自动安装并选中同一宠物。
 
 ## 开发与验证
 
 ```powershell
-powershell -NoProfile -File .\windows\tests\run-tests.ps1
-node --check .\windows\scripts\injector.mjs
-node --check .\windows\themes\remiel-seraph-system-v1\theme.js
+powershell -NoProfile -ExecutionPolicy Bypass -File .\windows\tests\run-tests.ps1
 ```
 
-主题包格式见 [`windows/THEME_FORMAT.md`](windows/THEME_FORMAT.md)，详细使用方式见 [`使用说明.md`](使用说明.md)。
+更多使用说明见 [`使用说明.md`](使用说明.md)。
 
 ## 致谢与许可
 
-主题管理架构基于 [yanhuuo/Codex-Xuanling-Theme](https://github.com/yanhuuo/Codex-Xuanling-Theme)，其底层方案参考 [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin)。代码按 [`LICENSE`](LICENSE) 提供。
+仓库结构与主题管理实现参考 [yanhuuo/Codex-Xuanling-Theme](https://github.com/yanhuuo/Codex-Xuanling-Theme)，底层方案参考 [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin)。本仓库代码按 [`LICENSE`](LICENSE) 提供；Codex、绝区零、蕾米埃尔及相关名称和角色权利归各自权利人所有。

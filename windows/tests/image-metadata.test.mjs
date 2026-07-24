@@ -12,7 +12,7 @@ import {
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const windowsRoot = path.resolve(here, "..");
-const featuredPath = path.join(windowsRoot, "themes", "remiel-seraph-system-v1", "background.jpg");
+const featuredPath = path.join(windowsRoot, "themes", "绝区零 蕾米埃尔", "background.jpg");
 const featured = await fs.readFile(featuredPath);
 const helper = path.join(windowsRoot, "scripts", "image-metadata.mjs");
 

@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-powershell -NoProfile -ExecutionPolicy RemoteSigned -File "%~dp0install-remiel.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-remiel.ps1"
 set "dream_skin_exit=%ERRORLEVEL%"
 if not "%dream_skin_exit%"=="0" (
   echo.
