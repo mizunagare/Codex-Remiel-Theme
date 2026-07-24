@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
   [int]$Port = 9335,
   [switch]$RestartExisting,
@@ -72,7 +72,7 @@ try {
   New-Item -ItemType Directory -Force -Path $runtimeRoot | Out-Null
   Copy-Item -LiteralPath (Join-Path $packageRoot 'README.md') -Destination $runtimeRoot -Force
   Copy-Item -LiteralPath (Join-Path $packageRoot '使用说明.md') -Destination $runtimeRoot -Force
-  Copy-Item -LiteralPath (Join-Path $packageRoot 'install-xuanling.ps1') -Destination $runtimeRoot -Force
+  Copy-Item -LiteralPath (Join-Path $packageRoot 'install-remiel.ps1') -Destination $runtimeRoot -Force
   $runtimeWindows = Join-Path $runtimeRoot 'windows'
   if (Test-Path -LiteralPath $runtimeWindows -PathType Container) {
     $fullRuntimeWindows = [System.IO.Path]::GetFullPath($runtimeWindows)

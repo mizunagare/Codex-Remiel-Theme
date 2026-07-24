@@ -778,6 +778,7 @@ try {
     'Remove-Item -LiteralPath $fullRuntimePets -Recurse -Force',
     "Join-Path `$runtimeWindows 'pets'",
     'Remove-Item -LiteralPath $fullLegacyPets -Recurse -Force',
+    "Join-Path `$packageRoot 'install-remiel.ps1'",
     "'Codex 主题.lnk'",
     '现在重启并继续安装',
     '& $installer -Port $Port -ManagerOnly',
