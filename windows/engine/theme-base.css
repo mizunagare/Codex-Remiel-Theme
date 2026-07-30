@@ -470,6 +470,16 @@ html.codex-dream-skin .dream-composer-shell {
   max-width: none !important;
 }
 
+/* Codex recenters wide thread blocks against the full window when only the
+   left sidebar is open. The composer must instead stay inside the live thread
+   viewport, whose width already accounts for both app-shell sidebars. */
+html.codex-dream-skin .thread-scroll-container > .dream-thread-content-stack {
+  --thread-wide-block-inline-shift: 0px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transform: none !important;
+}
+
 html.codex-dream-skin:is(.dream-composer-compact, .dream-composer-comfortable, .dream-composer-wide, .dream-composer-full)
   .dream-composer-shell {
   width: min(100%, var(--dream-composer-max-width)) !important;

@@ -545,6 +545,8 @@ try {
     '.dream-home-utility',
     '.dream-home-utility button:enabled:hover',
     '.dream-home-utility-present .dream-home .composer-surface-chrome',
+    '.thread-scroll-container > .dream-thread-content-stack',
+    '--thread-wide-block-inline-shift: 0px !important',
     '.dream-route-task:is(.dream-task-ambient, .dream-task-banner)',
     '.composer-surface-chrome .dream-theme-icon',
     'html.codex-dream-skin.dream-route-settings body',
@@ -608,7 +610,10 @@ try {
   }
 
   $rendererSource = Read-DreamSkinUtf8File -Path $sharedRendererPath
-  foreach ($requiredRendererBehavior in @('dream-home-utility', 'artMetadata', 'detectShellAppearance')) {
+  foreach ($requiredRendererBehavior in @(
+    'dream-home-utility', 'artMetadata', 'detectShellAppearance',
+    'dream-thread-content-stack', '.thread-scroll-container > *'
+  )) {
     if (-not $rendererSource.Contains($requiredRendererBehavior)) {
       throw "Renderer adaptive behavior is missing: $requiredRendererBehavior"
     }

@@ -394,6 +394,7 @@
     document.querySelectorAll(".dream-theme-brand-mark").forEach((node) => node.remove());
     document.querySelectorAll(".dream-composer-send").forEach((node) => node.classList.remove("dream-composer-send"));
     document.querySelectorAll(".dream-composer-processing").forEach((node) => node.classList.remove("dream-composer-processing"));
+    document.querySelectorAll(".dream-thread-content-stack").forEach((node) => node.classList.remove("dream-thread-content-stack"));
     document.querySelectorAll(".dream-permission-menu").forEach((node) => node.classList.remove("dream-permission-menu"));
     document.querySelectorAll(".dream-permission-item").forEach((node) => node.classList.remove("dream-permission-item"));
     document.querySelectorAll(".dream-theme-spinner-mark").forEach((node) => node.remove());
@@ -708,6 +709,8 @@
     for (const composer of document.querySelectorAll(".composer-surface-chrome")) {
       composer.closest?.(":is([class*='sticky'], [class*='fixed'], [class*='absolute'], [class*='px-toolbar'], [class*='px-'])")
         ?.classList.add("dream-composer-shell");
+      composer.closest?.(".thread-scroll-container > *")
+        ?.classList.add("dream-thread-content-stack");
     }
     for (const button of document.querySelectorAll(".composer-surface-chrome button")) {
       const label = (button.getAttribute("aria-label") || button.textContent || "").trim();
@@ -935,7 +938,7 @@
     ? setInterval(rotateArt, config.rotationIntervalMs)
     : null;
   window[STATE_KEY] = {
-    ensure, cleanup, observer, timer, rotationTimer, scheduler, artUrl, artUrls, profile, config, installToken, version: "1.4.1",
+    ensure, cleanup, observer, timer, rotationTimer, scheduler, artUrl, artUrls, profile, config, installToken, version: "1.4.2",
   };
   ensure();
   analyzeArt().then((result) => {
@@ -945,5 +948,5 @@
     state.profile = result;
     ensure();
   });
-  return { installed: true, version: "1.4.1", adaptive: true };
+  return { installed: true, version: "1.4.2", adaptive: true };
 })(__DREAM_CSS_JSON__, __DREAM_ART_JSON__, __DREAM_THEME_JSON__, __DREAM_ICONS_JSON__)
